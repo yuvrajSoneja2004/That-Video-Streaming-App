@@ -1,30 +1,73 @@
+import React, { useEffect, useState } from "react";
+import { auth, googleAuthProvider } from "./utils/firebase";
+import {
+  signInWithRedirect,
+  signOut,
+  getRedirectResult,
+  signInWithPopup,
+} from "firebase/auth";
+import Routing from "./Routing";
+import { THEME } from "./constants/theme";
+
 function App() {
+  // const [user, setUser] = useState(null);
+
+  // useEffect(() => {
+  //   const unsubscribe = auth.onAuthStateChanged((user) => {
+  //     setUser(user);
+  //   });
+
+  //   // Check if there's a result from the redirect sign-in
+  //   getRedirectResult(auth)
+  //     .then((result) => {
+  //       if (result) {
+  //         // User is signed in after the redirect
+  //         setUser(result.user);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error during redirect result handling:", error);
+  //     });
+
+  //   // Cleanup subscription on unmount
+  //   return () => unsubscribe();
+  // }, []);
+
+  // const signInWithGoogle = () => {
+  //   signInWithPopup(auth, googleAuthProvider)
+  //     .then(() => {
+  //       // The redirection will handle the sign-in process
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error during sign in:", error);
+  //     });
+  // };
+
+  // const handleSignOut = () => {
+  //   signOut(auth)
+  //     .then(() => {
+  //       // Sign-out successful
+  //       console.log("User signed out");
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error during sign out:", error);
+  //     });
+  // };
+
   return (
-    <>
-      <div className="carousel carousel-vertical rounded-box h-96">
-        <div className="carousel-item h-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1559703248-dcaaec9fab78.webp" />
+    <div className={`bg-[${THEME.dark.background}]`}>
+      {/* {user ? (
+        <div>
+          <h1>Welcome, {user.displayName}!</h1>
+          <img src={user.photoURL} alt="Profile" />
+          <p>Email: {user.email}</p>
+          <button onClick={handleSignOut}>Sign Out</button>
         </div>
-        <div className="carousel-item h-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1565098772267-60af42b81ef2.webp" />
-        </div>
-        <div className="carousel-item h-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1572635148818-ef6fd45eb394.webp" />
-        </div>
-        <div className="carousel-item h-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1494253109108-2e30c049369b.webp" />
-        </div>
-        <div className="carousel-item h-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1550258987-190a2d41a8ba.webp" />
-        </div>
-        <div className="carousel-item h-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1559181567-c3190ca9959b.webp" />
-        </div>
-        <div className="carousel-item h-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1601004890684-d8cbf643f5f2.webp" />
-        </div>
-      </div>
-    </>
+      ) : (
+        <button onClick={signInWithGoogle}>Sign In with Google</button>
+      )} */}
+      <Routing />
+    </div>
   );
 }
 
