@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useReducer } from "react";
 import ReactPlayer from "react-player";
-import { IoVolumeMute, IoVolumeHigh, IoContractOutline } from "react-icons/io5";
-
-import screenfull from "screenfull";
 import {
+  IoVolumeMute,
+  IoVolumeHigh,
+  IoContractOutline,
   IoIosPause,
   IoIosPlay,
   IoIosSkipBackward,
@@ -11,9 +11,11 @@ import {
   IoMdSettings,
 } from "react-icons/io";
 import { BsPip } from "react-icons/bs";
-
 import { LuRectangleHorizontal } from "react-icons/lu";
+import screenfull from "screenfull";
 import { videoPlayerReducer } from "../reducers/videoPlayerReducer";
+import { formatTime } from "../utils/formatTime";
+import { THEME } from "../constants/theme";
 
 const CustomVideoPlayer = () => {
   const ICON_SIZE = 24;
@@ -25,28 +27,22 @@ const CustomVideoPlayer = () => {
     controlsVisible: false,
     isOptionsOpen: false,
     showVolumeRange: false,
+    currentTime: 0,
+    duration: 0,
   };
 
   const [state, dispatch] = useReducer(videoPlayerReducer, initialState);
-
-  // const [playing, setPlaying] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1);
   const [volume, setVolume] = useState(1);
-  const [muted, setMuted] = useState(false);
-  const [controlsVisible, setControlsVisible] = useState(false);
-  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
-  const [showVolumeRange, setShowVolumeRange] = useState(false);
   const playerRef = useRef(null);
   const containerRef = useRef(null);
   const settingsRef = useRef(null);
 
   const handlePlayPause = () => {
     dispatch({ type: "HANDLE_PLAY_PAUSE", payload: !state.playing });
-    // setPlaying(!playing);
   };
 
   const handleSpeedChange = (speed) => {
-    setPlaybackRate(speed);
+    dispatch({ type: "HANDLE_SPEED_CHANGE", payload: speed });
   };
 
   const handleVolumeChange = (e) => {
@@ -54,24 +50,20 @@ const CustomVideoPlayer = () => {
   };
 
   const handleMute = () => {
-    setMuted(!muted);
+    dispatch({ type: "HANDLE_MUTE", payload: !state.muted });
   };
 
   const handleMouseEnter = () => {
-    setControlsVisible(true);
+    dispatch({ type: "SET_CONTROLS_VISIBLE", payload: true });
   };
 
   const handleMouseLeave = () => {
     if (state.playing) {
-      setControlsVisible(false);
-    }
-    if (isOptionsOpen) {
-      setControlsVisible(true);
+      dispatch({ type: "SET_CONTROLS_VISIBLE", payload: false });
     }
   };
 
   const toggleFullScreen = (event) => {
-    // Prevent fullscreen toggle if the click is on the settings button
     if (settingsRef.current && settingsRef.current.contains(event.target)) {
       return;
     }
@@ -81,16 +73,25 @@ const CustomVideoPlayer = () => {
   };
 
   const handleOptions = (event) => {
-    event.stopPropagation(); // Prevent the click from bubbling up to the container
-    setIsOptionsOpen(!isOptionsOpen);
+    event.stopPropagation();
+    dispatch({ type: "SET_IS_OPTIONS_OPEN", payload: !state.isOptionsOpen });
   };
 
-  const handleVolumeHover = (eventType: "enter" | "leave") => {
-    if (eventType === "enter") {
-      setShowVolumeRange(true);
-    } else {
-      setShowVolumeRange(false);
-    }
+  const handleDuration = (duration) => {
+    dispatch({ type: "HANDLE_DURATION", payload: duration });
+  };
+
+  const handleProgress = (progressSoFar) => {
+    dispatch({
+      type: "HANDLE_PROGRESS",
+      payload: progressSoFar.playedSeconds,
+    });
+  };
+
+  const handleSeek = (e) => {
+    const seekTo = parseFloat(e.target.value);
+    playerRef.current.seekTo(seekTo, "seconds");
+    dispatch({ type: "HANDLE_PROGRESS", payload: seekTo });
   };
 
   useEffect(() => {
@@ -99,7 +100,7 @@ const CustomVideoPlayer = () => {
         containerRef.current &&
         !containerRef.current.contains(event.target)
       ) {
-        setControlsVisible(false);
+        dispatch({ type: "SET_CONTROLS_VISIBLE", payload: false });
       }
     };
 
@@ -123,18 +124,19 @@ const CustomVideoPlayer = () => {
         width="100%"
         height="auto"
         playing={state.playing}
-        playbackRate={playbackRate}
+        playbackRate={state.playbackRate}
         volume={volume}
-        muted={muted}
+        muted={state.muted}
         pip={true}
+        onDuration={handleDuration}
+        onProgress={handleProgress}
       />
       <div
         className={`absolute bottom-0 left-0 right-0 p-4 transition-opacity duration-300 ${
-          controlsVisible || !state.playing ? "opacity-100" : "opacity-0"
+          state.controlsVisible || !state.playing ? "opacity-100" : "opacity-0"
         }`}
       >
         <div className="flex items-center justify-between text-white">
-          {/* Play / Prev / Pause / Volume Options */}
           <div className="flex gap-5">
             <button>
               <IoIosSkipBackward size={ICON_SIZE} />
@@ -147,39 +149,38 @@ const CustomVideoPlayer = () => {
               )}
             </button>
             <button>
-              <IoIosSkipForward size={24} />
+              <IoIosSkipForward size={ICON_SIZE} />
             </button>
             <button
               onClick={handleMute}
-              className="ml-2"
-              onMouseEnter={() => handleVolumeHover("enter")}
-              onMouseLeave={() => handleVolumeHover("leave")}
+              onMouseEnter={() =>
+                dispatch({ type: "SET_SHOW_VOLUME_RANGE", payload: true })
+              }
+              onMouseLeave={() =>
+                dispatch({ type: "SET_SHOW_VOLUME_RANGE", payload: false })
+              }
             >
-              {muted ? (
+              {state.muted ? (
                 <IoVolumeMute size={ICON_SIZE} />
               ) : (
                 <IoVolumeHigh size={ICON_SIZE} />
               )}
             </button>
             <div className="flex items-center flex-1 mx-4 relative">
-              {/* <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.1}
-              value={volume}
-              onChange={handleVolumeChange}
-              className="transition"
-              style={{ width: showVolumeRange ? 65 : 0 }}
-            /> */}
-              <span className=" text-sm">00:04 / 30:34</span>
+              <span className="text-sm">{formatTime(state.currentTime)}</span>
+              <span className="text-sm mx-1">/</span>
+              <span className="text-sm">{formatTime(state.duration)}</span>
+              <input
+                type="range"
+                min="0"
+                max={state.duration}
+                value={state.currentTime}
+                onChange={handleSeek}
+                className="ml-4 w-full"
+              />
             </div>
           </div>
           <div className="flex gap-5">
-            {isOptionsOpen && (
-              <div className="h-[240px] w-[230px] bg-[#000000bd] rounded-md absolute bottom-8 right-0"></div>
-            )}
-
             <button onClick={handleOptions} ref={settingsRef}>
               <IoMdSettings size={ICON_SIZE} />
             </button>
