@@ -2,7 +2,8 @@ import React from "react";
 
 interface AvatarProps {
   size?: number;
-  src?: string;
+  src: string;
+  hasRing?: boolean;
 }
 
 const DEFAULT_AVATAR =
@@ -10,7 +11,7 @@ const DEFAULT_AVATAR =
 
 const Avatar: React.FC<AvatarProps> = ({ size = 50, src = DEFAULT_AVATAR }) => {
   return (
-    <div className="avatar z-[-10]">
+    <div className="avatar">
       <div
         className="rounded-full overflow-hidden"
         style={{ width: `${size}px`, height: `${size}px` }}

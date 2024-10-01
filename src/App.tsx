@@ -55,7 +55,7 @@ function App() {
   // };
 
   return (
-    <div className={`bg-[${THEME.dark.background}]`}>
+    <div style={{ background: THEME.dark.background }}>
       {/* {user ? (
         <div>
           <h1>Welcome, {user.displayName}!</h1>

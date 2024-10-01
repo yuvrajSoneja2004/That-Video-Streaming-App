@@ -3,8 +3,16 @@ import { useMediaQuery } from "@uidotdev/usehooks";
 import { IoIosSearch } from "react-icons/io";
 import Dropdown from "./ui/Dropdown";
 import { THEME } from "../constants/theme";
+import SignInBtn from "./ui/SignInBtn";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../utils/firebase";
+import Avatar from "./ui/Avatar";
+import { NAVBAR_AVATAR_OPTIONS } from "../constants/options";
 
 function Navbar() {
+  // Dummy auth state
+  const [user, loading, error] = useAuthState(auth);
+
   // Define the media queries
   const isMediumDevice = useMediaQuery(
     "only screen and (min-width : 769px) and (max-width : 992px)"
@@ -25,7 +33,14 @@ function Navbar() {
           <IoIosSearch size={30} />
         </div>
       )}
-      <Dropdown />
+      {!loading && user == null ? (
+        <SignInBtn />
+      ) : (
+        <Dropdown
+          clickable={<Avatar src={user?.photoURL} />}
+          options={NAVBAR_AVATAR_OPTIONS}
+        />
+      )}
     </div>
   );
 }
