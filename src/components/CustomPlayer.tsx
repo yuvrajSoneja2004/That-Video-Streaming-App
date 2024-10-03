@@ -134,20 +134,22 @@ const CustomVideoPlayer = () => {
   };
 
   const handleQualityChange = (quality, index) => {
-    // Implement quality change logic here
-    console.log(`Changing index to ${index}`);
-    const bitrateUrls =
-      playerRef.current?.getInternalPlayer("hls")?.levels[index]?.url[0];
+    // Save the current playback time (currentTime) instead of duration
+    let savedTime = state.currentTime;
 
+    // Dispatch quality change (this will trigger the video to reload)
     dispatch({
       type: "HANDLE_QUALITY_CHANGE",
       payload: Object.values(quality)[0],
     });
 
-    console.log(bitrateUrls);
-    // Close the options menu after selection
-    dispatch({ type: "SET_IS_OPTIONS_OPEN", payload: false });
+    // After the quality change, seek back to the saved time
+    // Wait for the video to reload before seeking to the saved time
+    setTimeout(() => {
+      playerRef.current?.seekTo(savedTime, "seconds");
+    }, 500);
   };
+  
 
   const getVideoBitrates = () => {
     // If bitrates have already been fetched, use them from ref
