@@ -18,6 +18,14 @@ export const videoPlayerReducer = (state, action) => {
       return { ...state, duration: action.payload };
     case "HANDLE_PROGRESS":
       return { ...state, currentTime: action.payload };
+    case "SET_FULLSCREEN":
+      return { ...state, isFullscreen: action.payload };
+    case "HANDLE_OPTION_PRESS":
+      return { ...state, currentSelectedOption: action.payload };
+    case "SET_VIDEO_BITRATES":
+      return { ...state, availableVideoBitrates: action.payload };
+    case "HANDLE_QUALITY_CHANGE":
+      return { ...state, currentBitrate: action.payload };
     default:
       return state;
   }
