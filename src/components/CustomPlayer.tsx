@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useReducer,
-  useCallback,
-  useMemo,
-} from "react";
+import { useState, useRef, useEffect, useReducer } from "react";
 import ReactPlayer from "react-player";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -82,6 +75,11 @@ const CustomVideoPlayer = () => {
 
   const handleSpeedChange = (speed) => {
     dispatch({ type: "HANDLE_SPEED_CHANGE", payload: speed });
+    dispatch({
+      type: "SET_IS_OPTIONS_OPEN",
+      payload: !state.isOptionsOpen,
+    });
+    setActiveMenu("main");
   };
 
   const handleVolumeChange = (e) => {
@@ -133,7 +131,7 @@ const CustomVideoPlayer = () => {
     dispatch({ type: "HANDLE_PROGRESS", payload: seekTo });
   };
 
-  const handleQualityChange = (quality, index) => {
+  const handleQualityChange = (quality) => {
     // Save the current playback time (currentTime) instead of duration
     let savedTime = state.currentTime;
 
@@ -143,13 +141,19 @@ const CustomVideoPlayer = () => {
       payload: Object.values(quality)[0],
     });
 
+    setActiveMenu("main");
+
     // After the quality change, seek back to the saved time
     // Wait for the video to reload before seeking to the saved time
     setTimeout(() => {
       playerRef.current?.seekTo(savedTime, "seconds");
     }, 500);
+
+    dispatch({
+      type: "SET_IS_OPTIONS_OPEN",
+      payload: !state.isOptionsOpen,
+    });
   };
-  
 
   const getVideoBitrates = () => {
     // If bitrates have already been fetched, use them from ref
@@ -222,7 +226,6 @@ const CustomVideoPlayer = () => {
               animate="center"
               exit="exit"
               transition={{ duration: 0.3 }}
-              style={{ border: "2px solid red" }}
             >
               {VIDEO_PLAYER_OPTIONS.map((option, index) => (
                 <div
@@ -232,6 +235,9 @@ const CustomVideoPlayer = () => {
                     if (option.slug === "quality") {
                       setDirection(1);
                       setActiveMenu("quality");
+                    } else if (option.slug === "playspeed") {
+                      setDirection(1);
+                      setActiveMenu("playspeed");
                     }
                   }}
                 >
@@ -268,14 +274,43 @@ const CustomVideoPlayer = () => {
                 <div
                   key={index}
                   className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
-                  onClick={() =>
-                    handleQualityChange(
-                      quality,
-                      state.availableVideoBitrates.length - index - 1
-                    )
-                  }
+                  onClick={() => handleQualityChange(quality)}
                 >
                   <span>{Object.keys(quality)[0]}p</span>
+                </div>
+              ))}
+            </motion.div>
+          )}
+          {/* Playback speed  */}
+          {activeMenu === "playspeed" && (
+            <motion.div
+              key="playspeed"
+              custom={direction}
+              variants={menuVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3 }}
+            >
+              <div className="p-2 border-b border-gray-700">
+                <button
+                  className="flex items-center gap-2"
+                  onClick={() => {
+                    setDirection(-1);
+                    setActiveMenu("main");
+                  }}
+                >
+                  <IoMdSettings size={20} />
+                  <span>Playback Speed</span>
+                </button>
+              </div>
+              {VIDEO_PLAYER_OPTIONS[0].speedList?.map((speed, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
+                  onClick={() => handleSpeedChange(speed)}
+                >
+                  <span>{speed}x</span>
                 </div>
               ))}
             </motion.div>
