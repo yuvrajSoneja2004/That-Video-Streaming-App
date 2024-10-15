@@ -1,4 +1,60 @@
-export const videoPlayerReducer = (state, action) => {
+interface PlayerState {
+  currentBitrate: string;
+  playing: boolean;
+  paused: boolean;
+  playbackRate: number;
+  volume: number;
+  muted: boolean;
+  controlsVisible: boolean;
+  isOptionsOpen: boolean;
+  showVolumeRange: boolean;
+  currentTime: number;
+  duration: number;
+  isFullscreen: boolean;
+  currentSelectedOption: string;
+  availableVideoBitrates: Record<string, string | number>;
+}
+
+type PlayerAction =
+  | { type: "HANDLE_PLAY_PAUSE"; payload: boolean }
+  | { type: "HANDLE_SPEED_CHANGE"; payload: number }
+  | { type: "SET_VOLUME"; payload: number }
+  | { type: "HANDLE_MUTE"; payload: boolean }
+  | { type: "SET_CONTROLS_VISIBLE"; payload: boolean }
+  | { type: "SET_IS_OPTIONS_OPEN"; payload: boolean }
+  | { type: "SET_SHOW_VOLUME_RANGE"; payload: boolean }
+  | { type: "HANDLE_DURATION"; payload: number }
+  | { type: "HANDLE_PROGRESS"; payload: number }
+  | { type: "SET_FULLSCREEN"; payload: boolean }
+  | { type: "HANDLE_OPTION_PRESS"; payload: string }
+  | { type: "SET_VIDEO_BITRATES"; payload: Record<string, string | number> }
+  | { type: "HANDLE_QUALITY_CHANGE"; payload: string };
+
+// All necessary initial states of the video player
+export const playerInitialState: PlayerState = {
+  currentBitrate:
+    "http://localhost:3000/api/v1/video/videos/4a8fd9f1-62a2-4cc0-bb40-40a39665f313/360p/playlist.m3u8",
+  // "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8",
+  playing: false,
+  paused: false,
+  playbackRate: 1,
+  volume: 1,
+  muted: false,
+  controlsVisible: false,
+  isOptionsOpen: false,
+  showVolumeRange: false,
+  currentTime: 0,
+  duration: 0,
+  isFullscreen: false,
+  currentSelectedOption: "",
+  availableVideoBitrates: {},
+};
+
+// handles video player events conditionally
+export const videoPlayerReducer = (
+  state: PlayerState,
+  action: PlayerAction
+) => {
   switch (action.type) {
     case "HANDLE_PLAY_PAUSE":
       return { ...state, playing: action.payload };

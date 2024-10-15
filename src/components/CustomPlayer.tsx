@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useReducer } from "react";
+import { useState, useRef, useEffect, useReducer, ChangeEvent } from "react";
 import ReactPlayer from "react-player";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -17,63 +17,54 @@ import {
 import { BsPip } from "react-icons/bs";
 import { LuRectangleHorizontal } from "react-icons/lu";
 import screenfull from "screenfull";
-import { videoPlayerReducer } from "../reducers/videoPlayerReducer";
+import {
+  videoPlayerReducer,
+  playerInitialState as initialState,
+} from "../reducers/videoPlayerReducer";
 import { formatTime } from "../utils/formatTime";
-import { THEME } from "../constants/theme";
 import { VIDEO_PLAYER_OPTIONS } from "../constants/options";
 
-const CustomVideoPlayer = () => {
-  const ICON_SIZE = 24;
-  const initialState = {
-    // currentBitrate:
-    //   "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa_video_180_250000.m3u8",
-    currentBitrate:
-      "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8",
-    playing: false,
-    paused: false,
-    playbackRate: 1,
-    volume: 1,
-    muted: false,
-    controlsVisible: false,
-    isOptionsOpen: false,
-    showVolumeRange: false,
-    currentTime: 0,
-    duration: 0,
-    isFullscreen: false,
-    currentSelectedOption: "",
-    availableVideoBitrates: {},
-  };
+type BitrateType = {
+  width: number;
+  url: Array<string>;
+};
 
+type ActiveMenuStates = "main" | "playspeed" | "quality";
+const CustomVideoPlayer = () => {
+  // Constant values
+  const ICON_SIZE = 24;
+
+  // Initial States
   const [state, dispatch] = useReducer(videoPlayerReducer, initialState);
-  const [volume, setVolume] = useState(1);
-  const [activeMenu, setActiveMenu] = useState("main");
-  const [direction, setDirection] = useState(0);
-  const playerRef = useRef(null);
-  const containerRef = useRef(null);
-  const settingsRef = useRef(null);
-  // Ref to store bitrates and avoid re-fetching
+  const [activeMenu, setActiveMenu] = useState<ActiveMenuStates>("main");
+  const [direction, setDirection] = useState<number>(0);
+
+  // Reference states to reference DOM elements
+  const playerRef = useRef<ReactPlayer | null>(null);
+  const containerRef = useRef<Element | HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLButtonElement>(null);
   const bitrateRef = useRef(null);
 
-  const menuVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 200 : -200,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction) => ({
-      x: direction < 0 ? 200 : -200,
-      opacity: 0,
-    }),
-  };
+  // const menuVariants = {
+  //   enter: (direction) => ({
+  //     x: direction > 0 ? 200 : -200,
+  //     opacity: 0,
+  //   }),
+  //   center: {
+  //     x: 0,
+  //     opacity: 1,
+  //   },
+  //   exit: (direction) => ({
+  //     x: direction < 0 ? 200 : -200,
+  //     opacity: 0,
+  //   }),
+  // };
 
   const handlePlayPause = () => {
     dispatch({ type: "HANDLE_PLAY_PAUSE", payload: !state.playing });
   };
 
-  const handleSpeedChange = (speed) => {
+  const handleSpeedChange = (speed: number) => {
     dispatch({ type: "HANDLE_SPEED_CHANGE", payload: speed });
     dispatch({
       type: "SET_IS_OPTIONS_OPEN",
@@ -82,8 +73,8 @@ const CustomVideoPlayer = () => {
     setActiveMenu("main");
   };
 
-  const handleVolumeChange = (e) => {
-    setVolume(parseFloat(e.target.value));
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({ type: "SET_VOLUME", payload: parseFloat(e.target.value) });
   };
 
   const handleMute = () => {
@@ -100,38 +91,42 @@ const CustomVideoPlayer = () => {
     }
   };
 
-  const toggleFullScreen = (event) => {
-    if (settingsRef.current && settingsRef.current.contains(event.target)) {
+  const toggleFullScreen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (
+      settingsRef.current &&
+      settingsRef.current?.contains(event.target as Node)
+    ) {
       return;
     }
-    if (screenfull.isEnabled) {
+    if (screenfull.isEnabled && containerRef.current) {
       screenfull.toggle(containerRef.current);
     }
   };
 
-  const handleOptions = (event) => {
+  const handleOptions = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     dispatch({ type: "SET_IS_OPTIONS_OPEN", payload: !state.isOptionsOpen });
   };
 
-  const handleDuration = (duration) => {
+  const handleDuration = (duration: number) => {
     dispatch({ type: "HANDLE_DURATION", payload: duration });
   };
 
-  const handleProgress = (progressSoFar) => {
+  const handleProgress = (progressSoFar: { playedSeconds: number }) => {
     dispatch({
       type: "HANDLE_PROGRESS",
       payload: progressSoFar.playedSeconds,
     });
   };
 
-  const handleSeek = (e) => {
+  const handleSeek = (e: ChangeEvent<HTMLInputElement>) => {
     const seekTo = parseFloat(e.target.value);
-    playerRef.current.seekTo(seekTo, "seconds");
+    playerRef.current?.seekTo(seekTo, "seconds");
+
     dispatch({ type: "HANDLE_PROGRESS", payload: seekTo });
   };
 
-  const handleQualityChange = (quality) => {
+  const handleQualityChange = (quality: number) => {
     // Save the current playback time (currentTime) instead of duration
     let savedTime = state.currentTime;
 
@@ -164,7 +159,7 @@ const CustomVideoPlayer = () => {
 
     const bitrates = playerRef.current
       ?.getInternalPlayer("hls")
-      ?.levels?.map((bitrate) => ({
+      ?.levels?.map((bitrate: BitrateType) => ({
         [bitrate?.width]: bitrate?.url[0],
       }))
       ?.reverse();
@@ -194,10 +189,10 @@ const CustomVideoPlayer = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target)
+        !containerRef.current?.contains(event.target)
       ) {
         dispatch({ type: "SET_CONTROLS_VISIBLE", payload: false });
       }
@@ -211,7 +206,7 @@ const CustomVideoPlayer = () => {
 
   console.log("Send help 😭", Object.keys(state.availableVideoBitrates));
 
-  const VideoOptions = ({ isOptionsOpen }) => {
+  const VideoOptions = ({ isOptionsOpen }: { isOptionsOpen: boolean }) => {
     if (!isOptionsOpen) return null;
 
     return (
@@ -221,7 +216,6 @@ const CustomVideoPlayer = () => {
             <motion.div
               key="main"
               custom={direction}
-              variants={menuVariants}
               initial="enter"
               animate="center"
               exit="exit"
@@ -252,7 +246,6 @@ const CustomVideoPlayer = () => {
             <motion.div
               key="quality"
               custom={direction}
-              variants={menuVariants}
               initial="enter"
               animate="center"
               exit="exit"
@@ -270,15 +263,17 @@ const CustomVideoPlayer = () => {
                   <span>Quality</span>
                 </button>
               </div>
-              {state.availableVideoBitrates?.map((quality, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
-                  onClick={() => handleQualityChange(quality)}
-                >
-                  <span>{Object.keys(quality)[0]}p</span>
-                </div>
-              ))}
+              {state.availableVideoBitrates?.map(
+                (quality: number, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
+                    onClick={() => handleQualityChange(quality)}
+                  >
+                    <span>{Object.keys(quality)[0]}p</span>
+                  </div>
+                )
+              )}
             </motion.div>
           )}
           {/* Playback speed  */}
@@ -286,7 +281,6 @@ const CustomVideoPlayer = () => {
             <motion.div
               key="playspeed"
               custom={direction}
-              variants={menuVariants}
               initial="enter"
               animate="center"
               exit="exit"
@@ -335,7 +329,7 @@ const CustomVideoPlayer = () => {
         height="auto"
         playing={state.playing}
         playbackRate={state.playbackRate}
-        volume={volume}
+        volume={state.volume}
         muted={state.muted}
         pip={true}
         onDuration={handleDuration}
@@ -398,7 +392,7 @@ const CustomVideoPlayer = () => {
             </button>
             <button
               onClick={async () => {
-                playerRef.current?.requestPictureInPicture();
+                //PIP logic here.
               }}
             >
               <BsPip size={ICON_SIZE} />
