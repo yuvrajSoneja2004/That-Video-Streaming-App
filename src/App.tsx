@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 import Routing from "./Routing";
 import { THEME } from "./constants/theme";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 function App() {
   // const [user, setUser] = useState(null);
@@ -54,9 +55,13 @@ function App() {
   //     });
   // };
 
+  // Create a client
+  const queryClient = new QueryClient();
+
   return (
-    <div style={{ background: THEME.dark.background }}>
-      {/* {user ? (
+    <QueryClientProvider client={queryClient}>
+      <div style={{ background: THEME.dark.background }}>
+        {/* {user ? (
         <div>
           <h1>Welcome, {user.displayName}!</h1>
           <img src={user.photoURL} alt="Profile" />
@@ -66,8 +71,9 @@ function App() {
       ) : (
         <button onClick={signInWithGoogle}>Sign In with Google</button>
       )} */}
-      <Routing />
-    </div>
+        <Routing />
+      </div>
+    </QueryClientProvider>
   );
 }
 

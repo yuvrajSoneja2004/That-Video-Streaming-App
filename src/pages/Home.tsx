@@ -3,6 +3,10 @@ import VideoPlayer from "../components/VideoPlayer";
 import ReactPlayer from "react-player";
 import Control from "../components/VideoPlayerComponents/Control";
 import CustomVideoPlayer from "../components/CustomPlayer";
+import { Button } from "@mui/material";
+import BasicModal from "../components/Model";
+import UploadVideoModel from "../components/models/UploadVideoModel";
+
 function Home() {
   const playerRef = React.useRef(null);
 
@@ -22,6 +26,9 @@ function Home() {
   // const handlePlayerReady = (player) => {
   //   playerRef.current = player;
   // };
+  const [open, setOpen] = React.useState(true);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
     <div className="p-7">
@@ -36,6 +43,13 @@ function Home() {
           muted={true}
         /> */}
         <CustomVideoPlayer />
+        <BasicModal
+          open={open}
+          handleOpen={handleOpen}
+          handleClose={handleClose}
+        >
+          <UploadVideoModel />
+        </BasicModal>
       </div>
     </div>
   );
