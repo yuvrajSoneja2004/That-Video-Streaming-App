@@ -7,7 +7,6 @@ function RootLayout() {
   return (
     <div>
       <LoadingBar color={THEME.primary} progress={40} />
-      <Navbar />
       <Outlet />
     </div>
   );

@@ -10,13 +10,18 @@ interface VideoSchema {
 }
 interface Props {
   videoInfo: VideoSchema;
+  isStatic?: boolean;
 }
-function VideoCard({ videoInfo }: Props) {
+function VideoCard({ videoInfo, isStatic }: Props) {
   const { title, thumbnail, views } = videoInfo;
   return (
     <Link to={"/pathHere"} className="max-w-[330.9px] min-h-[201.32px] ">
       <div>
-        <img src={thumbnail} alt="Video" className="rounded-lg" />
+        <img
+          src={isStatic ? "./video-placeholder.jpg" : thumbnail}
+          alt="Video"
+          className="rounded-lg"
+        />
       </div>
       <div className="flex items-start gap-3 mt-3">
         <Avatar

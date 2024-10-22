@@ -5,11 +5,14 @@ import Box from "@mui/material/Box";
 import { FaFileUpload } from "react-icons/fa";
 import InputField from "../ui/InputField";
 import { RiUploadCloudLine } from "react-icons/ri";
-import { Stack } from "@mui/material";
+import { Stack, styled } from "@mui/material";
+import { videoCategories } from "../../constants/categories";
 import { BsStars } from "react-icons/bs";
-import { useQuery, useMutation } from "react-query";
+import { useMutation } from "react-query";
 import { generateVideoThumbnails } from "../../helpers/generateVideoThumbnails";
 import { SERVER_BASE_URL } from "../../utils/axiosInstance";
+import VideoCard from "../VideoCard";
+import SelectOptions from "../ui/SelectOptions";
 
 function UploadVideoModel() {
   const [open, setOpen] = React.useState(false);
@@ -18,6 +21,7 @@ function UploadVideoModel() {
   const selectVideoRef = React.useRef<HTMLInputElement>(null);
   const [isVideoSelected, setIsVideoSelected] = React.useState<boolean>(false);
   const [previewURL, setPreviewURL] = React.useState<string>("");
+
   const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,13 +29,13 @@ function UploadVideoModel() {
     if (file) {
       setSelectedVideo(file);
       setIsVideoSelected(true);
-      let prevUrl = URL.createObjectURL(file);
+      const prevUrl = URL.createObjectURL(file);
       setPreviewURL(prevUrl);
     }
   };
 
   const style = {
-    position: "absolute",
+    position: "absolute" as const,
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
@@ -85,24 +89,44 @@ function UploadVideoModel() {
   );
 }
 
-function VideoDetails({ prevUrl, selectedVideo }: any) {
+type VideoDetailsProps = {
+  prevUrl: string;
+  selectedVideo: File | null;
+};
+
+function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
+  const [title, setTitle] = React.useState<string>("");
+  const [description, setDescription] = React.useState<string>("");
+  const [thumbnail, setThumbnail] = React.useState<string>(""); // To hold the selected thumbnail URL
+  const thumbnailRef = React.useRef<HTMLInputElement>(null);
+  const [selectedCategory, setSelectedCategory] = React.useState(
+    videoCategories[0]
+  ); // Default to first category
+
   const style = {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns: "60% auto",
     gap: 10,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#1f2937",
     color: "white",
     height: "100%",
-    padding: "100px",
+    padding: "19px",
+    paddingBottom: "39px",
+    paddingTop: "39px",
   };
 
-  const { data, isLoading, error, mutate } = useMutation((formData: FormData) =>
+  const leftGridStyle = {
+    maxHeight: "400px", // Set a fixed height for the left section
+    overflowY: "auto", // Enable vertical scrolling
+    paddingRight: "10px", // Optional: add some space for scrollbar
+    paddingTop: "10px",
+  };
+
+  const { data, isLoading, mutate } = useMutation((formData: FormData) =>
     generateVideoThumbnails(formData)
   );
-
-  console.log(data);
 
   const generateThumbnails = () => {
     if (selectedVideo) {
@@ -112,58 +136,117 @@ function VideoDetails({ prevUrl, selectedVideo }: any) {
     }
   };
 
+  const handleThumbnailClick = (thumbUrl: string) => {
+    setThumbnail(`${SERVER_BASE_URL}/video${thumbUrl}`); // Set the selected thumbnail from auto-generated ones
+  };
+
+  const handleThumbnailSelection = () => {
+    if (thumbnailRef.current) {
+      thumbnailRef.current.click();
+    }
+  };
+
+  const handleCategoryChange = (event: any) => {
+    setSelectedCategory(event.target.value); // Update selected category
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const fileUrl = URL.createObjectURL(file); // Create a URL for the selected file
+      setThumbnail(fileUrl); // Set the manually selected thumbnail
+    }
+  };
+
   return (
     <Box sx={style}>
-      <div>
+      <div style={leftGridStyle}>
         <Stack gap={2}>
           <InputField
             label="Title"
             placeholder="Add title that describes your video."
+            value={title}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setTitle(e.target.value)
+            }
           />
           <InputField
             label="Description"
             placeholder="Tell viewers about your video."
+            value={description}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setDescription(e.target.value)
+            }
           />
           <h2>Thumbnail</h2>
           <div className="flex gap-3">
-            <div className="p-4 px-8 border-2 border-dotted border-gray-400 flex justify-center items-center flex-col gap-2 text-sm hover:cursor-pointer">
+            <input
+              type="file"
+              ref={thumbnailRef}
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ display: "none" }} // Hidden input field for file selection
+            />
+            <div
+              className="p-4 px-8 border-2 border-dotted border-gray-400 flex justify-center items-center flex-col gap-2 text-sm hover:cursor-pointer"
+              onClick={handleThumbnailSelection}
+            >
               <RiUploadCloudLine size={27} />
               <span>Upload file</span>
             </div>
             <div
-              className="p-4  px-8 border-2 border-dotted border-gray-400 flex justify-center items-center flex-col gap-2 text-sm hover:cursor-pointer"
+              className="p-4 px-8 border-2 border-dotted border-gray-400 flex justify-center items-center flex-col gap-2 text-sm hover:cursor-pointer"
               onClick={generateThumbnails}
             >
               <BsStars size={27} />
               <span>Auto-generate</span>
             </div>
           </div>
-          {isLoading ? (
-            <h1>Generating....</h1>
-          ) : (
-            data?.map((thumb, i) => (
-              <React.Fragment key={i}>
+          {!isLoading &&
+            "Select an image from your video to use as a thumbnail"}
+          <div className="flex gap-2">
+            {isLoading ? (
+              <h1>Generating....</h1>
+            ) : (
+              data?.map((thumb: string, i: number) => (
                 <img
                   src={`${SERVER_BASE_URL}/video${thumb}`}
                   key={i}
-                  alt="lol"
+                  alt="Thumbnail"
+                  width={123}
+                  height={66}
+                  className={`rounded-md cursor-pointer ${
+                    thumbnail === thumb
+                      ? "outline outline-2 outline-blue-500"
+                      : ""
+                  }`} // Add outline when the thumbnail is selected
+                  onClick={() => handleThumbnailClick(thumb)} // Set the clicked thumbnail
                 />
-                <a href={`${SERVER_BASE_URL}/video${thumb}`} target="_blank">
-                  {`${SERVER_BASE_URL}/video${thumb}`}
-                </a>
-              </React.Fragment>
-            ))
-          )}
+              ))
+            )}
+          </div>
+          <span>Category</span>
+          <SelectOptions
+            value={selectedCategory} // Pass current selected category
+            onChange={handleCategoryChange} // Pass handler function
+            options={videoCategories} // Pass video categories array
+          />
         </Stack>
       </div>
-      <div>
-        <video width="320" height="240" controls>
-          <source src={prevUrl} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
+      <VideoCard
+        videoInfo={{
+          id: crypto.randomUUID(),
+          title,
+          description,
+          thumbnail: thumbnail ? thumbnail : "default-thumbnail.jpg", // Use the manually selected thumbnail or default
+          views: 23, // This can be a dynamic value if you have it
+        }}
+        isStatic={thumbnail ? false : true}
+      />
     </Box>
   );
 }
+
+
 
 export default UploadVideoModel;

@@ -1,11 +1,3 @@
-import React, { useEffect, useState } from "react";
-import { auth, googleAuthProvider } from "./utils/firebase";
-import {
-  signInWithRedirect,
-  signOut,
-  getRedirectResult,
-  signInWithPopup,
-} from "firebase/auth";
 import Routing from "./Routing";
 import { THEME } from "./constants/theme";
 import { QueryClient, QueryClientProvider } from "react-query";
