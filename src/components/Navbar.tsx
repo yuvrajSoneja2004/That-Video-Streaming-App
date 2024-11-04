@@ -8,10 +8,15 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../utils/firebase";
 import Avatar from "./ui/Avatar";
 import { NAVBAR_AVATAR_OPTIONS } from "../constants/options";
+import AvatarDropdown from "./AvatarDropdown";
+import { useUserStore } from "../states/user";
 
 function Navbar() {
   // Dummy auth state
   const [user, loading, error] = useAuthState(auth);
+  const {
+    userInfo: { avatarUrl },
+  } = useUserStore();
 
   // Define the media queries
   const isMediumDevice = useMediaQuery(
@@ -36,10 +41,11 @@ function Navbar() {
       {!loading && user == null ? (
         <SignInBtn />
       ) : (
-        <Dropdown
-          clickable={<Avatar src={user?.photoURL} />}
-          options={NAVBAR_AVATAR_OPTIONS}
-        />
+        <AvatarDropdown avatarUrl={avatarUrl} />
+        // <Dropdown
+        //   clickable={<Avatar src={user?.photoURL} />}
+        //   options={NAVBAR_AVATAR_OPTIONS}
+        // />
       )}
     </div>
   );

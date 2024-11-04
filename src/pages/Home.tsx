@@ -1,11 +1,5 @@
 import React from "react";
-import VideoPlayer from "../components/VideoPlayer";
-import ReactPlayer from "react-player";
-import Control from "../components/VideoPlayerComponents/Control";
 import CustomVideoPlayer from "../components/CustomPlayer";
-import { Button } from "@mui/material";
-import BasicModal from "../components/Model";
-import UploadVideoModel from "../components/models/UploadVideoModel";
 
 function Home() {
   const playerRef = React.useRef(null);
@@ -43,13 +37,13 @@ function Home() {
           muted={true}
         /> */}
         <CustomVideoPlayer />
-        <BasicModal
+        {/* <BasicModal
           open={open}
           handleOpen={handleOpen}
           handleClose={handleClose}
         >
           <UploadVideoModel />
-        </BasicModal>
+        </BasicModal> */}
       </div>
     </div>
   );

@@ -51,7 +51,7 @@ function App() {
   const queryClient = new QueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient} contextSharing={true}>
       <div style={{ background: THEME.dark.background }}>
         {/* {user ? (
         <div>

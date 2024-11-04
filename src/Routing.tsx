@@ -9,29 +9,32 @@ import ChannelPlaylists from "./components/ChannelPageComponents/ChannelPlaylist
 import ChannelCommunity from "./components/ChannelPageComponents/ChannelCommunity";
 import ChannelAbout from "./components/ChannelPageComponents/ChannelAbout";
 import ChannelShorts from "./components/ChannelPageComponents/ChannelShorts";
+import { AuthWrapper } from "./wrappers/AuthCheck";
 // Import channel page components
 
 function Routing() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <div className="flex-grow">
-          <Routes>
-            <Route path="/" element={<RootLayout />}>
-              <Route index element={<Home />} />
-            </Route>
-            <Route path="/channel/:channelId" element={<ChannelLayout />}>
-              <Route index element={<ChannelHome />} />
-              <Route path="videos" element={<ChannelVideos />} />
-              <Route path="shorts" element={<ChannelShorts />} />
-              <Route path="playlists" element={<ChannelPlaylists />} />
-              <Route path="community" element={<ChannelCommunity />} />
-              <Route path="about" element={<ChannelAbout />} />
-            </Route>
-          </Routes>
+      <AuthWrapper>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <div className="flex-grow">
+            <Routes>
+              <Route path="/" element={<RootLayout />}>
+                <Route index element={<Home />} />
+              </Route>
+              <Route path="/channel/:channelId" element={<ChannelLayout />}>
+                <Route index element={<ChannelHome />} />
+                <Route path="videos" element={<ChannelVideos />} />
+                <Route path="shorts" element={<ChannelShorts />} />
+                <Route path="playlists" element={<ChannelPlaylists />} />
+                <Route path="community" element={<ChannelCommunity />} />
+                <Route path="about" element={<ChannelAbout />} />
+              </Route>
+            </Routes>
+          </div>
         </div>
-      </div>
+      </AuthWrapper>
     </Router>
   );
 }
