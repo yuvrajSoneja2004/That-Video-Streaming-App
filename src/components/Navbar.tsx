@@ -27,7 +27,7 @@ function Navbar() {
   return (
     <div className="w-full grid grid-cols-[10%_auto_10%] place-items-center h-24 bg-primaryDark text-white px-6 fixed">
       {/* Logo Section */}
-      <img src="./logo-placeholder.svg" width={60} height={60} className="" />
+      <img src="/logo-placeholder.svg" width={60} height={60} className="" />
 
       {/* Show Search Bar for large screens, hide for medium and small */}
       {!isMediumDevice && isLargeDevice && <SearchBar onSearch={() => {}} />}

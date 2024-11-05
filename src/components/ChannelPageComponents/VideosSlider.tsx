@@ -24,7 +24,6 @@ function VideosSlider({ heading }) {
     return resultArray;
   }, []);
 
-  console.log("its impossible to shake it", groupedItems);
 
   return (
     <div className="my-8">

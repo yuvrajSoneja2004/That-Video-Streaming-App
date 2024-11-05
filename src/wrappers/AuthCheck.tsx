@@ -4,6 +4,8 @@ import { fetchUserInfo } from "../helpers/fetchUserInfo";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../utils/firebase";
 import { useUserStore } from "../states/user";
+import AuthErrorScreen from "../components/AuthErrorScreen";
+import AuthLoadingScreen from "../components/AuthLoadingScreen";
 
 export const AuthWrapper = ({ children }: { children: ReactNode }) => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -16,28 +18,47 @@ export const AuthWrapper = ({ children }: { children: ReactNode }) => {
     {
       staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
       cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-      retry: 2, // Retry twice if it fails
-      enabled: !!user?.uid, // Only run query if user.uid is defined
+      // retry: 2, // Retry twice if it fails
+      // enabled: !!user?.uid, // Only run query if user.uid is defined
     }
   );
 
   useEffect(() => {
     if (!isInitialized) setIsInitialized(true);
-    console.log("tu bas de de mera staaaath", data);
   }, [isInitialized, data]);
 
   useEffect(() => {
     if (data) setUserInfo(data);
   }, [data, setUserInfo]);
 
-  // Optional: Show loading state only on initial load
+  //  Show loading state only on initial load
   if (!isInitialized || isLoading) {
-    return <div>Loading...</div>;
+    return <AuthLoadingScreen />;
   }
 
-  // Optional: Handle error state
+  if (error?.response?.data?.message == "USER_NOT_FOUND") {
+    return (
+      <AuthErrorScreen
+        onRetry={() => {}}
+        errorInfo={{
+          title: "User not found in Database",
+          code: "USER_NOT_FOUND",
+        }}
+      />
+    );
+  }
+
+  // Handle error state
   if (error) {
-    return <div>Error loading user information</div>;
+    return (
+      <AuthErrorScreen
+        onRetry={() => {}}
+        errorInfo={{
+          title: "Auth error",
+          code: "AUTH_ERROR",
+        }}
+      />
+    );
   }
 
   return <>{children}</>;

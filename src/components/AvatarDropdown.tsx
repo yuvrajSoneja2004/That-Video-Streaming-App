@@ -7,6 +7,8 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import BedtimeOutlinedIcon from "@mui/icons-material/BedtimeOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { useNavigate } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../utils/firebase";
 // Define types for the props and menu options
 interface AvatarDropdownProps {
   avatarUrl: string;
@@ -22,6 +24,7 @@ interface MenuOption {
 const AvatarDropdown: React.FC<AvatarDropdownProps> = ({ avatarUrl }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [user] = useAuthState(auth);
   const navigate = useNavigate();
 
   // Define the menu options with their respective icons
@@ -77,7 +80,7 @@ const AvatarDropdown: React.FC<AvatarDropdownProps> = ({ avatarUrl }) => {
             key={index}
             onClick={() => {
               option.toggle ? handleDarkModeToggle() : handleClose();
-              navigate(`${option.route}/me`);
+              navigate(`${option.route}/${user?.uid}`);
             }}
             sx={{
               "&:hover": {

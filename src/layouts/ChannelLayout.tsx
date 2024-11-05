@@ -4,21 +4,47 @@ import VideosTypeNavbar from "../components/ChannelPageComponents/VideosTypeNavb
 import { Outlet } from "react-router-dom";
 import { useUserStore } from "../states/user";
 import CreateChannel from "../components/CreateChannel";
+import { useQuery } from "react-query";
+import { fetchChannelInfo } from "../helpers/fetchChannelInfo";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../utils/firebase";
 
 function ChannelLayout() {
   const {
     userInfo: { hasChannel },
   } = useUserStore();
+  const [user] = useAuthState(auth);
+
+  const { data, error, isLoading } = useQuery(
+    ["channelInfo", user?.uid],
+    () => fetchChannelInfo(user?.uid),
+    {
+      staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+      cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+      enabled: !!user?.uid, // Only run query if user.uid is defined
+    }
+  );
+
+  console.log(hasChannel, "lol");
+  if (isLoading) {
+    return <div>Loading...</div>; // Or a proper loading component
+  }
+
   return (
     <div className="pt-[100px] p-4">
-      {" "}
-      {/* Add padding-top to account for Navbar height */}
       {hasChannel ? (
         <>
-          <Banner bannerUrl="" />
-          <ChannelInfo />
+          <Banner bannerUrl={data?.bannerUrl} />
+          <ChannelInfo
+            avatarUrl={data?.avatarUrl}
+            description={data?.description}
+            isVerified={data?.isVerified}
+            name={data?.name}
+            subscribers={data?.subscribers}
+            createdBy={data?.createdBy}
+          />
           <VideosTypeNavbar />
-          <Outlet />
+          <Outlet context={data?.id} />
         </>
       ) : (
         <CreateChannel />

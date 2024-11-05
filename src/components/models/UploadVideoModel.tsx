@@ -13,6 +13,7 @@ import { generateVideoThumbnails } from "../../helpers/generateVideoThumbnails";
 import { SERVER_BASE_URL } from "../../utils/axiosInstance";
 import VideoCard from "../VideoCard";
 import SelectOptions from "../ui/SelectOptions";
+import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 
 function UploadVideoModel() {
   const [open, setOpen] = React.useState(false);
@@ -48,8 +49,18 @@ function UploadVideoModel() {
 
   return (
     <div>
-      <Button variant="contained" onClick={handleOpen}>
-        Open Modal
+      <Button
+        variant="contained"
+        sx={{
+          borderRadius: 20,
+          background: "#fff",
+          color: "#000",
+          textTransform: "none",
+        }}
+        onClick={handleOpen}
+      >
+        <FileUploadOutlinedIcon sx={{ marginRight: 0.7, fontSize: 20 }} />
+        Upload
       </Button>
       <Modal
         open={open}
