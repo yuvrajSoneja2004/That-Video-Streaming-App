@@ -3,27 +3,29 @@ import Avatar from "../ui/Avatar";
 import { Button } from "@mui/material";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../utils/firebase";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import UploadVideoModel from "../models/UploadVideoModel";
 import ChannelCustomizeModal from "../models/CustomizeChannelModel";
 import { useState } from "react";
 interface ChannelInfoProps {
+  channelId: number;
   avatarUrl: string;
   description: string;
   isVerified: boolean;
   name: string;
   subscribers: string[];
   createdBy: string;
+  bannerUrl: string;
 }
 
 const ChannelInfo: React.FC<ChannelInfoProps> = ({
+  channelId,
   avatarUrl,
   description,
   isVerified,
   name,
   subscribers,
   createdBy,
+  bannerUrl,
 }) => {
   const [user] = useAuthState(auth);
   const [open, setOpen] = useState(false);
@@ -61,19 +63,13 @@ const ChannelInfo: React.FC<ChannelInfoProps> = ({
         ) : (
           <div className="flex gap-2">
             <UploadVideoModel />
-            <ChannelCustomizeModal open={true} handleClose={handleClose} />
-            {/* <Button
-              variant="contained"
-              sx={{
-                borderRadius: 20,
-                background: "#fff",
-                color: "#000",
-                textTransform: "none",
-              }}
-            >
-              <EditOutlinedIcon sx={{ marginRight: 0.7, fontSize: 20 }} />
-              Customize channel
-            </Button> */}
+            <ChannelCustomizeModal
+              open={open}
+              handleClose={handleClose}
+              handleOpen={handleOpen}
+              bannerUrl={bannerUrl}
+              channelId={channelId}
+            />
           </div>
         )}
       </div>

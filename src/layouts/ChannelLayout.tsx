@@ -8,21 +8,20 @@ import { useQuery } from "react-query";
 import { fetchChannelInfo } from "../helpers/fetchChannelInfo";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../utils/firebase";
+import { Snackbar } from "@mui/material";
+import { useChannelState } from "../states/channel";
 
 function ChannelLayout() {
   const {
     userInfo: { hasChannel },
   } = useUserStore();
+
+  const { isChannelInfoUpdated, setIsChannelInfoUpdated } = useChannelState();
   const [user] = useAuthState(auth);
 
   const { data, error, isLoading } = useQuery(
-    ["channelInfo", user?.uid],
-    () => fetchChannelInfo(user?.uid),
-    {
-      staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-      cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-      enabled: !!user?.uid, // Only run query if user.uid is defined
-    }
+    ["channelInfo", user?.uid, isChannelInfoUpdated],
+    () => fetchChannelInfo(user?.uid)
   );
 
   console.log(hasChannel, "lol");
@@ -36,15 +35,23 @@ function ChannelLayout() {
         <>
           <Banner bannerUrl={data?.bannerUrl} />
           <ChannelInfo
+            channelId={data?.id}
             avatarUrl={data?.avatarUrl}
             description={data?.description}
             isVerified={data?.isVerified}
             name={data?.name}
             subscribers={data?.subscribers}
             createdBy={data?.createdBy}
+            bannerUrl={data?.bannerUrl}
           />
           <VideosTypeNavbar />
           <Outlet context={data?.id} />
+          <Snackbar
+            open={isChannelInfoUpdated}
+            autoHideDuration={3000}
+            message="Successfully updated changes."
+            onClose={() => setIsChannelInfoUpdated(false)}
+          />
         </>
       ) : (
         <CreateChannel />
