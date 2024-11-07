@@ -62,7 +62,11 @@ const ChannelInfo: React.FC<ChannelInfoProps> = ({
           </Button>
         ) : (
           <div className="flex gap-2">
-            <UploadVideoModel />
+            <UploadVideoModel
+              avatarUrl={avatarUrl}
+              name={name}
+              channelId={channelId}
+            />
             <ChannelCustomizeModal
               open={open}
               handleClose={handleClose}

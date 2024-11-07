@@ -14,8 +14,10 @@ import { SERVER_BASE_URL } from "../../utils/axiosInstance";
 import VideoCard from "../VideoCard";
 import SelectOptions from "../ui/SelectOptions";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+import { THEME } from "../../constants/theme";
+import { uploadVideo } from "../../helpers/uploadVideo";
 
-function UploadVideoModel() {
+function UploadVideoModel({ avatarUrl, name, channelId }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -70,7 +72,10 @@ function UploadVideoModel() {
       >
         <Box sx={style}>
           {!isVideoSelected ? (
-            <div className="flex flex-col items-center justify-center bg-gray-900 text-gray-300 p-[100px]">
+            <div
+              className="flex flex-col items-center justify-center  p-[100px]"
+              style={{ background: THEME.dark.background }}
+            >
               <div className="bg-gray-800 rounded-full p-6 inline-block">
                 <FaFileUpload className="w-12 h-12" />
               </div>
@@ -92,7 +97,13 @@ function UploadVideoModel() {
               </Button>
             </div>
           ) : (
-            <VideoDetails prevUrl={previewURL} selectedVideo={selectedVideo} />
+            <VideoDetails
+              prevUrl={previewURL}
+              selectedVideo={selectedVideo}
+              name={name}
+              avatarUrl={avatarUrl}
+              channelId={channelId}
+            />
           )}
         </Box>
       </Modal>
@@ -105,14 +116,20 @@ type VideoDetailsProps = {
   selectedVideo: File | null;
 };
 
-function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
+function VideoDetails({
+  prevUrl,
+  selectedVideo,
+  name,
+  avatarUrl,
+  channelId,
+}: VideoDetailsProps) {
   const [title, setTitle] = React.useState<string>("");
   const [description, setDescription] = React.useState<string>("");
-  const [thumbnail, setThumbnail] = React.useState<string>(""); // To hold the selected thumbnail URL
+  const [thumbnail, setThumbnail] = React.useState<string>("");
   const thumbnailRef = React.useRef<HTMLInputElement>(null);
   const [selectedCategory, setSelectedCategory] = React.useState(
     videoCategories[0]
-  ); // Default to first category
+  );
 
   const style = {
     display: "grid",
@@ -129,15 +146,48 @@ function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
   };
 
   const leftGridStyle = {
-    maxHeight: "400px", // Set a fixed height for the left section
-    overflowY: "auto", // Enable vertical scrolling
-    paddingRight: "10px", // Optional: add some space for scrollbar
+    maxHeight: "400px",
+    overflowY: "auto",
+    paddingRight: "10px",
     paddingTop: "10px",
   };
 
+  // Existing thumbnail generation mutation
   const { data, isLoading, mutate } = useMutation((formData: FormData) =>
     generateVideoThumbnails(formData)
   );
+
+  // New upload video mutation
+  const uploadMutation = useMutation({
+    mutationFn: async (uploadData: {
+      title: string;
+      description: string;
+      category: string;
+      thumbnail: string;
+      video: File;
+    }) => {
+      const formData = new FormData();
+      formData.append("channelId", channelId);
+      formData.append("title", uploadData.title);
+      formData.append("description", uploadData.description);
+      formData.append("category", uploadData.category);
+      formData.append("thumbnail", uploadData.thumbnail);
+      formData.append("video", uploadData.video);
+
+      return uploadVideo(formData);
+    },
+    onSuccess: (data) => {
+      // Handle successful upload - you might want to redirect to the video page
+      console.log("Video uploaded successfully:", data);
+      // You can add navigation here if needed
+      // navigate(`/video/${data.videoId}`);
+    },
+    onError: (error) => {
+      // Handle upload error
+      console.error("Upload failed:", error);
+      // You might want to show an error message to the user
+    },
+  });
 
   const generateThumbnails = () => {
     if (selectedVideo) {
@@ -148,7 +198,7 @@ function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
   };
 
   const handleThumbnailClick = (thumbUrl: string) => {
-    setThumbnail(`${SERVER_BASE_URL}/video${thumbUrl}`); // Set the selected thumbnail from auto-generated ones
+    setThumbnail(`${SERVER_BASE_URL}/video${thumbUrl}`);
   };
 
   const handleThumbnailSelection = () => {
@@ -158,15 +208,35 @@ function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
   };
 
   const handleCategoryChange = (event: any) => {
-    setSelectedCategory(event.target.value); // Update selected category
+    setSelectedCategory(event.target.value);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const fileUrl = URL.createObjectURL(file); // Create a URL for the selected file
-      setThumbnail(fileUrl); // Set the manually selected thumbnail
+      const fileUrl = URL.createObjectURL(file);
+      setThumbnail(fileUrl);
     }
+  };
+
+  const handleUpload = () => {
+    if (!selectedVideo) {
+      console.error("No video selected");
+      return;
+    }
+
+    if (!title.trim()) {
+      console.error("Title is required");
+      return;
+    }
+
+    uploadMutation.mutate({
+      title,
+      description,
+      category: selectedCategory,
+      thumbnail,
+      video: selectedVideo,
+    });
   };
 
   return (
@@ -196,7 +266,7 @@ function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
               ref={thumbnailRef}
               accept="image/*"
               onChange={handleFileChange}
-              style={{ display: "none" }} // Hidden input field for file selection
+              style={{ display: "none" }}
             />
             <div
               className="p-4 px-8 border-2 border-dotted border-gray-400 flex justify-center items-center flex-col gap-2 text-sm hover:cursor-pointer"
@@ -230,18 +300,26 @@ function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
                     thumbnail === thumb
                       ? "outline outline-2 outline-blue-500"
                       : ""
-                  }`} // Add outline when the thumbnail is selected
-                  onClick={() => handleThumbnailClick(thumb)} // Set the clicked thumbnail
+                  }`}
+                  onClick={() => handleThumbnailClick(thumb)}
                 />
               ))
             )}
           </div>
           <span>Category</span>
           <SelectOptions
-            value={selectedCategory} // Pass current selected category
-            onChange={handleCategoryChange} // Pass handler function
-            options={videoCategories} // Pass video categories array
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            options={videoCategories}
           />
+          <Button
+            variant="contained"
+            onClick={handleUpload}
+            disabled={uploadMutation.isLoading}
+          >
+            {channelId}{" "}
+            {uploadMutation.isLoading ? "Uploading..." : "Upload Video"}
+          </Button>
         </Stack>
       </div>
       <VideoCard
@@ -249,8 +327,10 @@ function VideoDetails({ prevUrl, selectedVideo }: VideoDetailsProps) {
           id: crypto.randomUUID(),
           title,
           description,
-          thumbnail: thumbnail ? thumbnail : "default-thumbnail.jpg", // Use the manually selected thumbnail or default
-          views: 23, // This can be a dynamic value if you have it
+          avatarUrl,
+          creator: name,
+          thumbnail: thumbnail ? thumbnail : "default-thumbnail.jpg",
+          views: 23,
         }}
         isStatic={thumbnail ? false : true}
       />

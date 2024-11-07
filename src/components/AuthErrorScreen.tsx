@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { THEME } from "../constants/theme";
 import SignInBtn from "./ui/SignInBtn";
+import GlobalButton from "./ui/GlobalButton";
 
 interface AuthErrorScreenProps {
   onRetry: () => void;
@@ -129,7 +130,7 @@ const AuthErrorScreen: React.FC<AuthErrorScreenProps> = ({
               </Button>
             </Box>
           ) : (
-            <SignInBtn />
+            <SignInBtn variant={"type2"} />
           )}
 
           {/* Help Text */}

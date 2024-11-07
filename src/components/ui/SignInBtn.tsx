@@ -4,6 +4,8 @@ import { signInWithPopup, UserCredential } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useMutation } from "react-query";
 import { createUser } from "../../helpers/createUser";
+import LoginIcon from "@mui/icons-material/Login";
+import GlobalButton from "./GlobalButton";
 
 interface UserData {
   userId: string;
@@ -12,7 +14,7 @@ interface UserData {
   avatarUrl: string;
 }
 
-function SignInBtn() {
+function SignInBtn({ variant = "type1" }: { variant: "type1" | "type2" }) {
   const [user, loading, error] = useAuthState(auth);
 
   const { mutate, isLoading, isError } = useMutation<void, Error, UserData>({
@@ -29,8 +31,6 @@ function SignInBtn() {
         googleAuthProvider
       );
 
-      console.log(result, "tum ho");
-
       const userData: UserData = {
         userId: result.user.uid,
         name: result.user.displayName || "Anonymous",
@@ -43,6 +43,17 @@ function SignInBtn() {
       console.error("Error during sign in:", error);
     }
   };
+
+  if (variant == "type2")
+    return (
+      <GlobalButton
+        startIcon={<LoginIcon />}
+        onClick={signInWithGoogle}
+        disabled={isLoading}
+      >
+        Register
+      </GlobalButton>
+    );
 
   return (
     <button
