@@ -10,43 +10,43 @@ import Avatar from "./ui/Avatar";
 import { NAVBAR_AVATAR_OPTIONS } from "../constants/options";
 import AvatarDropdown from "./AvatarDropdown";
 import { useUserStore } from "../states/user";
+import { useMutation } from "react-query";
+import { saveToGlobalSuggestions } from "../helpers/fetchVideoSuggestions";
 
 function Navbar() {
-  // Dummy auth state
   const [user, loading, error] = useAuthState(auth);
   const {
     userInfo: { avatarUrl },
   } = useUserStore();
 
-  // Define the media queries
   const isMediumDevice = useMediaQuery(
     "only screen and (min-width : 769px) and (max-width : 992px)"
   );
-  const isLargeDevice = useMediaQuery("only screen and (min-width : 993px)"); // For large screens (993px and above)
+  const isLargeDevice = useMediaQuery("only screen and (min-width : 993px)");
 
   return (
-    <div className="w-full grid grid-cols-[10%_auto_10%] place-items-center h-24 bg-primaryDark text-white px-6 fixed">
-      {/* Logo Section */}
-      <img src="/logo-placeholder.svg" width={60} height={60} className="" />
+    <div className="w-full h-24 bg-primaryDark text-white px-6 fixed">
+      <div className="h-full max-w-[1920px] mx-auto grid grid-cols-[auto_1fr_auto] gap-8 items-center">
+        {/* Logo Section */}
+        <img src="/logo-placeholder.svg" width={60} height={60} />
 
-      {/* Show Search Bar for large screens, hide for medium and small */}
-      {!isMediumDevice && isLargeDevice && <SearchBar onSearch={() => {}} />}
+        {/* Search Bar Section */}
+        {!isMediumDevice && isLargeDevice && (
+          <div className="w-full max-w-2xl mx-auto">
+            <SearchBar />
+          </div>
+        )}
 
-      {/* Show Search Icon for medium devices, hide for large screens */}
-      {!isLargeDevice && (
-        <div className="flex justify-end items-center col-start-3">
-          <IoIosSearch size={30} />
+        {/* Right Section */}
+        <div className="flex items-center justify-end">
+          {!isLargeDevice && <IoIosSearch size={30} className="mr-4" />}
+          {!loading && user == null ? (
+            <SignInBtn />
+          ) : (
+            <AvatarDropdown avatarUrl={avatarUrl} />
+          )}
         </div>
-      )}
-      {!loading && user == null ? (
-        <SignInBtn />
-      ) : (
-        <AvatarDropdown avatarUrl={avatarUrl} />
-        // <Dropdown
-        //   clickable={<Avatar src={user?.photoURL} />}
-        //   options={NAVBAR_AVATAR_OPTIONS}
-        // />
-      )}
+      </div>
     </div>
   );
 }

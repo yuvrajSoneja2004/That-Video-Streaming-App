@@ -2,20 +2,9 @@ import Carousel from "react-material-ui-carousel";
 import VideoCard from "../VideoCard";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
-function VideosSlider({ heading }) {
-  // Generate 20 dummy items
-  const items = Array.from({ length: 20 }, (_, i) => ({
-    name: `Video Title #${i + 1}`,
-    description: `Description for video #${
-      i + 1
-    }. This is a sample description.`,
-    id: `video-${i + 1}`,
-    thumbnail: `https://picsum.photos/seed/${i + 1}/330/200`,
-    views: Math.floor(Math.random() * 1000000) + 1000,
-  }));
-
+function VideosSlider({ heading, data }) {
   // Group items into sets of 4
-  const groupedItems = items.reduce((resultArray, item, index) => {
+  const groupedItems = data.reduce((resultArray, item, index) => {
     const groupIndex = Math.floor(index / 4);
     if (!resultArray[groupIndex]) {
       resultArray[groupIndex] = [];
@@ -23,7 +12,6 @@ function VideosSlider({ heading }) {
     resultArray[groupIndex].push(item);
     return resultArray;
   }, []);
-
 
   return (
     <div className="my-8">
@@ -60,11 +48,12 @@ function VideosSlider({ heading }) {
               <div key={item.id} className="w-1/3">
                 <VideoCard
                   videoInfo={{
-                    title: item.name,
+                    title: item.title,
                     description: item.description,
-                    id: item.id,
-                    thumbnail: item.thumbnail,
+                    id: item.videoId,
+                    thumbnailUrl: item.thumbnailUrl,
                     views: item.views,
+                    channel: item.channel,
                   }}
                 />
               </div>

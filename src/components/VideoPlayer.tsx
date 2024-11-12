@@ -1,56 +1,50 @@
-import React from "react";
-import videojs from "video.js";
-import "video.js/dist/video-js.css";
+// import React from 'react'
 
-import "videojs-http-source-selector";
-import "videojs-hls-quality-selector";
+// function VideoPlayer() {
+//   const playerRef = React.useRef(null);
 
-export const VideoPlayer = (props) => {
-  const videoRef = React.useRef(null);
-  const playerRef = React.useRef(null);
-  const { options, onReady } = props;
+//   const videoJsOptions = {
+//     autoplay: true,
+//     controls: true,
+//     responsive: true,
+//     fluid: true,
+//     sources: [
+//       {
+//         src: "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8",
+//         type: "application/x-mpegURL",
+//       },
+//     ],
+//   };
 
-  React.useEffect(() => {
-    // Make sure Video.js player is only initialized once
-    if (!playerRef.current) {
-      // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode.
-      const videoElement = document.createElement("video-js");
+//   const handlePlayerReady = (player) => {
+//     playerRef.current = player;
+//   };
+//   const [open, setOpen] = React.useState(true);
+//   const handleOpen = () => setOpen(true);
+//   const handleClose = () => setOpen(false);
+//   return (
+//     <div className="p-7">
+//       <div className="max-w-3xl mx-auto">
+//         {/* <VideoPlayer options={videoJsOptions} onReady={handlePlayerReady} />
+//         {/* <ReactPlayer
+//           url="http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8"
+//           controls
+//           width="100%"
+//           height="100%"
+//           playing={true}
+//           muted={true} */}
+//         /> */}
+//         <CustomVideoPlayer />
+//         {/* <BasicModal
+//           open={open}
+//           handleOpen={handleOpen}
+//           handleClose={handleClose}
+//         >
+//           <UploadVideoModel />
+//         </BasicModal> */}
+//       </div>
+//     </div>
+//   )
+// }
 
-      videoElement.classList.add("vjs-big-play-centered");
-      videoRef.current.appendChild(videoElement);
-
-      const player = (playerRef.current = videojs(videoElement, options, () => {
-        videojs.log("player is ready");
-        onReady && onReady(player);
-      }));
-
-      // You could update an existing player in the `else` block here
-      // on prop change, for example:
-    } else {
-      const player = playerRef.current;
-
-      player.autoplay(options.autoplay);
-      player.src(options.sources);
-    }
-  }, [options, videoRef]);
-
-  // Dispose the Video.js player when the functional component unmounts
-  React.useEffect(() => {
-    const player = playerRef.current;
-
-    return () => {
-      if (player && !player.isDisposed()) {
-        player.dispose();
-        playerRef.current = null;
-      }
-    };
-  }, [playerRef]);
-
-  return (
-    <div data-vjs-player className="mt-[300px]">
-      <div ref={videoRef} />
-    </div>
-  );
-};
-
-export default VideoPlayer;
+// export default VideoPlayer

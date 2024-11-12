@@ -10,6 +10,7 @@ import ChannelCommunity from "./components/ChannelPageComponents/ChannelCommunit
 import ChannelAbout from "./components/ChannelPageComponents/ChannelAbout";
 import ChannelShorts from "./components/ChannelPageComponents/ChannelShorts";
 import { AuthWrapper } from "./wrappers/AuthCheck";
+import SearchResults from "./pages/SearchResults";
 // Import channel page components
 
 function Routing() {
@@ -31,6 +32,7 @@ function Routing() {
                 <Route path="community" element={<ChannelCommunity />} />
                 <Route path="about" element={<ChannelAbout />} />
               </Route>
+              <Route path="/results" element={<SearchResults />} />
             </Routes>
           </div>
         </div>

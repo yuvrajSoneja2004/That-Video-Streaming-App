@@ -1,47 +1,92 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  ChangeEvent,
+  FormEvent,
+} from "react";
 import { IoIosSearch } from "react-icons/io";
-import { THEME } from "../constants/theme";
+import { useDebounce } from "@uidotdev/usehooks";
+import VideoSuggestionsBox from "./VideoSuggestionsBox";
+import { saveToGlobalSuggestions } from "../helpers/fetchVideoSuggestions";
+import { useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
 
-interface SearchBar {
-  onSearch: (query: string) => void;
-}
+interface SearchBar {}
 
-const SearchBar: React.FC<SearchBar> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBar> = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isShowSuggestions, setIsShowSuggestions] = useState(false);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const searchMutation = useMutation(() =>
+    saveToGlobalSuggestions(debouncedSearchQuery)
+  );
 
-  // Handle input change
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Function to handle clicks outside the search container
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsShowSuggestions(false);
+      }
+    };
+
+    // Add event listener when component mounts
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup event listener when component unmounts
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  // Handle form submission
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSearch(searchQuery); // Trigger search action with the query
+    searchMutation.mutate();
+    navigate(`/results?search_query=${debouncedSearchQuery}`);
+  };
+
+  const handleSearchFocus = () => {
+    setIsShowSuggestions(true);
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto rounded-[40px] flex justify-center items-center">
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center bg-transparent  rounded-full shadow-md w-full"
-        style={{ border: "1px solid #62626249" }}
-      >
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleInputChange}
-          className="flex-grow bg-transparent px-4 focus:outline-none"
-          placeholder="Search"
-        />
-        <button
-          type="submit"
-          className="text-white px-6 py-2 rounded-r-full h-full bg-transparent"
-          style={{ borderLeft: "1px solid #62626249" }}
+    <div className="w-full relative" ref={searchContainerRef}>
+      <div className="w-full">
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center bg-transparent rounded-full shadow-md w-full"
+          style={{ border: "1px solid #62626249" }}
         >
-          <IoIosSearch size={27} />
-        </button>
-      </form>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleInputChange}
+            onFocus={handleSearchFocus}
+            className="flex-grow bg-transparent px-6 py-3 focus:outline-none rounded-l-full"
+            placeholder="Search"
+          />
+          <button
+            type="submit"
+            className="text-white px-6 py-3 rounded-r-full h-full bg-transparent hover:bg-opacity-10 hover:bg-white transition-colors"
+            style={{ borderLeft: "1px solid #62626249" }}
+          >
+            <IoIosSearch size={27} />
+          </button>
+        </form>
+      </div>
+      {isShowSuggestions && (
+        <VideoSuggestionsBox query={debouncedSearchQuery} />
+      )}
     </div>
   );
 };
