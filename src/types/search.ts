@@ -21,6 +21,7 @@ export interface Video {
   channel: Channel;
   thumbnailUrl: string;
   previewGif: string;
+  videoUrl: string;
 }
 
 export interface SearchResponse {

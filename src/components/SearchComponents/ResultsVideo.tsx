@@ -12,6 +12,7 @@ import VerifiedIcon from "@mui/icons-material";
 import { Video } from "../../types/search";
 import RelativeTime from "../../utils/RelativeTime";
 import { formatViews } from "../../utils/formatViews";
+import { Link, useNavigate } from "react-router-dom";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -37,11 +38,13 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
 
 export default function ResultsVideo({ data }: { data: Video }) {
   const [showPreviewGif, setShowPreviewGif] = useState<boolean>(false);
+  const navigate = useNavigate();
   return (
     <StyledCard
       elevation={0}
       onMouseEnter={() => setShowPreviewGif(true)}
       onMouseLeave={() => setShowPreviewGif(false)}
+      onClick={() => navigate(`/watch/${data?.videoUrl}`)}
     >
       <Box
         sx={{
@@ -90,20 +93,22 @@ export default function ResultsVideo({ data }: { data: Video }) {
             <RelativeTime createdAt={data?.createdAt} />
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-          <Avatar
-            src={data?.channel.avatarUrl}
-            sx={{ width: 24, height: 24, mr: 1 }}
-          />
-          <Typography
-            variant="body2"
-            color="#fff"
-            sx={{ display: "flex", alignItems: "center" }}
-          >
-            {data?.channel?.name}
-            {/* <VerifiedIcon sx={{ fontSize: 14, ml: 0.5, color: 'text.secondary' }} /> */}
-          </Typography>
-        </Box>
+        <Link to={`/channel/${data?.channel?.id}`}>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+            <Avatar
+              src={data?.channel.avatarUrl}
+              sx={{ width: 24, height: 24, mr: 1 }}
+            />
+            <Typography
+              variant="body2"
+              color="#fff"
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              {data?.channel?.name}
+              {/* <VerifiedIcon sx={{ fontSize: 14, ml: 0.5, color: 'text.secondary' }} /> */}
+            </Typography>
+          </Box>
+        </Link>
         <Typography variant="body2" color="#fff" sx={{ mt: 1 }}>
           {data?.channel.description}
         </Typography>

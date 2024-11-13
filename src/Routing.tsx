@@ -11,6 +11,7 @@ import ChannelAbout from "./components/ChannelPageComponents/ChannelAbout";
 import ChannelShorts from "./components/ChannelPageComponents/ChannelShorts";
 import { AuthWrapper } from "./wrappers/AuthCheck";
 import SearchResults from "./pages/SearchResults";
+import SingleVideoPage from "./pages/SingleVideoPage";
 // Import channel page components
 
 function Routing() {
@@ -33,6 +34,7 @@ function Routing() {
                 <Route path="about" element={<ChannelAbout />} />
               </Route>
               <Route path="/results" element={<SearchResults />} />
+              <Route path="/watch/:videoId" element={<SingleVideoPage />} />
             </Routes>
           </div>
         </div>

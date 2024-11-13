@@ -23,6 +23,7 @@ import {
 } from "../reducers/videoPlayerReducer";
 import { formatTime } from "../utils/formatTime";
 import { VIDEO_PLAYER_OPTIONS } from "../constants/options";
+import { useParams } from "react-router-dom";
 
 type BitrateType = {
   width: number;
@@ -30,7 +31,7 @@ type BitrateType = {
 };
 
 type ActiveMenuStates = "main" | "playspeed" | "quality";
-const CustomVideoPlayer = () => {
+const CustomVideoPlayer = ({ bitrates }) => {
   // Constant values
   const ICON_SIZE = 24;
 
@@ -44,6 +45,7 @@ const CustomVideoPlayer = () => {
   const containerRef = useRef<Element | HTMLDivElement>(null);
   const settingsRef = useRef<HTMLButtonElement>(null);
   const bitrateRef = useRef(null);
+  const videoUrlId = useParams<string>();
 
   // const menuVariants = {
   //   enter: (direction) => ({
@@ -133,7 +135,10 @@ const CustomVideoPlayer = () => {
     // Dispatch quality change (this will trigger the video to reload)
     dispatch({
       type: "HANDLE_QUALITY_CHANGE",
-      payload: Object.values(quality)[0],
+      payload: {
+        videoUrlId: videoUrlId?.videoId,
+        bitrate: quality,
+      },
     });
 
     setActiveMenu("main");
@@ -204,14 +209,24 @@ const CustomVideoPlayer = () => {
     };
   }, []);
 
-  console.log("Send help 😭", Object.keys(state.availableVideoBitrates));
+  useEffect(() => {
+    dispatch({ type: "PLAY_VIDEO", payload: videoUrlId?.videoId });
+  }, []);
 
-  const VideoOptions = ({ isOptionsOpen }: { isOptionsOpen: boolean }) => {
+  const VideoOptions = ({
+    isOptionsOpen,
+    vidBitrates,
+  }: {
+    isOptionsOpen: boolean;
+    vidBitrates: [];
+  }) => {
     if (!isOptionsOpen) return null;
 
     return (
       <div className="absolute bottom-[60px] right-0 bg-[#1a1a1a] rounded-lg overflow-hidden w-[200px]">
         <AnimatePresence initial={false} custom={direction}>
+          <h1>{state.currentBitrate}</h1>
+
           {activeMenu === "main" && (
             <motion.div
               key="main"
@@ -241,7 +256,6 @@ const CustomVideoPlayer = () => {
               ))}
             </motion.div>
           )}
-
           {activeMenu === "quality" && (
             <motion.div
               key="quality"
@@ -263,17 +277,15 @@ const CustomVideoPlayer = () => {
                   <span>Quality</span>
                 </button>
               </div>
-              {state.availableVideoBitrates?.map(
-                (quality: number, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
-                    onClick={() => handleQualityChange(quality)}
-                  >
-                    <span>{Object.keys(quality)[0]}p</span>
-                  </div>
-                )
-              )}
+              {vidBitrates?.map((quality: number, index: number) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
+                  onClick={() => handleQualityChange(quality)}
+                >
+                  <span>{quality}p</span>
+                </div>
+              ))}
             </motion.div>
           )}
           {/* Playback speed  */}
@@ -410,7 +422,10 @@ const CustomVideoPlayer = () => {
           </div>
         </div>
       </div>
-      <VideoOptions isOptionsOpen={state.isOptionsOpen} />
+      <VideoOptions
+        isOptionsOpen={state.isOptionsOpen}
+        vidBitrates={bitrates}
+      />
     </div>
   );
 };
