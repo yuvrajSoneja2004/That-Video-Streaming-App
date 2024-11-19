@@ -131,6 +131,9 @@ function VideoDetails({
     videoCategories[0]
   );
 
+  const [uploadPercentage , setUploadPercentage] = React.useState(0);
+  
+  const [currentUploadStage,setCurrentUploadStage] = React.useState("uploading")
   const style = {
     display: "grid",
     gridTemplateColumns: "60% auto",
@@ -157,6 +160,7 @@ function VideoDetails({
     generateVideoThumbnails(formData)
   );
 
+  console.log("i am going insane", data);
   // New upload video mutation
   const uploadMutation = useMutation({
     mutationFn: async (uploadData: {
@@ -173,19 +177,24 @@ function VideoDetails({
       formData.append("category", uploadData.category);
       formData.append("thumbnail", uploadData.thumbnail);
       formData.append("video", uploadData.video);
-
-      return uploadVideo(formData);
+  
+      return uploadVideo(formData, (progress) => {
+        setUploadPercentage(progress.progress);
+        setCurrentUploadStage(progress.stage)
+        // You can also track the stage if needed
+        console.log('Current stage:', progress.stage);
+        console.log('Current percent:' , progress.progress);
+        
+      });
     },
     onSuccess: (data) => {
-      // Handle successful upload - you might want to redirect to the video page
       console.log("Video uploaded successfully:", data);
-      // You can add navigation here if needed
-      // navigate(`/video/${data.videoId}`);
+      // Close modal or show success message
+      handleClose?.(); // Make sure to pass handleClose as prop if needed
     },
     onError: (error) => {
-      // Handle upload error
       console.error("Upload failed:", error);
-      // You might want to show an error message to the user
+      // Show error message to user
     },
   });
 
@@ -285,7 +294,7 @@ function VideoDetails({
           </div>
           {!isLoading &&
             "Select an image from your video to use as a thumbnail"}
-          <div className="flex gap-2">
+          <div className="flex gap-2 ml-2">
             {isLoading ? (
               <h1>Generating....</h1>
             ) : (
@@ -297,7 +306,7 @@ function VideoDetails({
                   width={123}
                   height={66}
                   className={`rounded-md cursor-pointer ${
-                    thumbnail === thumb
+                    thumbnail === `${SERVER_BASE_URL}/video${thumb}`
                       ? "outline outline-2 outline-blue-500"
                       : ""
                   }`}
@@ -315,10 +324,9 @@ function VideoDetails({
           <Button
             variant="contained"
             onClick={handleUpload}
-            disabled={uploadMutation.isLoading}
+            // disabled={uploadMutation.isLoading}
           >
-            {channelId}{" "}
-            {uploadMutation.isLoading ? "Uploading..." : "Upload Video"}
+            {uploadMutation.isLoading ? `Uploading... ${Math.round(uploadPercentage)}%` : "Upload Video"}
           </Button>
         </Stack>
       </div>
@@ -329,10 +337,10 @@ function VideoDetails({
           description,
           avatarUrl,
           creator: name,
-          thumbnail: thumbnail ? thumbnail : "default-thumbnail.jpg",
+          thumbnailUrl: thumbnail ? thumbnail : "default-thumbnail.jpg",
           views: 23,
         }}
-        isStatic={thumbnail ? false : true}
+        isStatic={true}
       />
     </Box>
   );

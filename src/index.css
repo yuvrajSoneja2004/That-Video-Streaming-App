@@ -6,4 +6,16 @@
     /* border: 2px solid red; */
 }
 
-/* Hide slider thumb  */
+/* Hide scrollbar but allow scrolling */
+html {
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  body {
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+  }
+  

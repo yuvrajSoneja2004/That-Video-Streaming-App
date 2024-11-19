@@ -101,16 +101,7 @@ function ChannelVideos() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {videos.map((item: any) => (
           <div key={item.id} className="w-full">
-            <VideoCard
-              videoInfo={{
-                title: item.title,
-                description: item.description,
-                id: item.videoId,
-                thumbnailUrl: item.thumbnailUrl,
-                views: item.views,
-                channel: item.channel,
-              }}
-            />
+            <VideoCard videoInfo={item} />
           </div>
         ))}
       </div>

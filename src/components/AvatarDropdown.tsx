@@ -69,6 +69,7 @@ const AvatarDropdown: React.FC<AvatarDropdownProps> = ({ avatarUrl }) => {
             className="w-full h-full object-cover"
             width={30}
             height={30}
+            referrerPolicy="no-referrer"
           />
         </Avatar>
       </IconButton>

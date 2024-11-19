@@ -35,9 +35,9 @@ type PlayerAction =
 
 // All necessary initial states of the video player
 export const playerInitialState: PlayerState = {
-  currentBitrate: `${SERVER_BASE_URL}/video/videos/52478b1e-b361-421a-ba36-1ad1afd0d38a/360p/playlist.m3u8`,
+  currentBitrate: ``,
   // "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8",
-  playing: true,
+  playing: false,
   paused: false,
   playbackRate: 1,
   volume: 1,

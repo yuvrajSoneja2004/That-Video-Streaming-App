@@ -46,16 +46,7 @@ function VideosSlider({ heading, data }) {
           <div key={i} className="flex justify-between space-x-4 ">
             {group?.map((item: any) => (
               <div key={item.id} className="w-1/3">
-                <VideoCard
-                  videoInfo={{
-                    title: item.title,
-                    description: item.description,
-                    id: item.videoId,
-                    thumbnailUrl: item.thumbnailUrl,
-                    views: item.views,
-                    channel: item.channel,
-                  }}
-                />
+                <VideoCard videoInfo={item} />
               </div>
             ))}
           </div>

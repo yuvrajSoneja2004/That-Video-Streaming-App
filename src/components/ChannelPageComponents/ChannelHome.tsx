@@ -10,7 +10,8 @@ function ChannelHome() {
   );
 
   console.log(data);
-  if (isLoading) return <h1>Loading...</h1>;
+  if (!data && isLoading) return <h1>Loading...</h1>;
+  if(!data) return <h1>lol</h1>
   return (
     <div className="max-w-[1800px]">
       <VideosSlider heading={"Recent videos"} data={data?.recentVideos} />

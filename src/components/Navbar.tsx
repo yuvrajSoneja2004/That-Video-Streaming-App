@@ -12,6 +12,7 @@ import AvatarDropdown from "./AvatarDropdown";
 import { useUserStore } from "../states/user";
 import { useMutation } from "react-query";
 import { saveToGlobalSuggestions } from "../helpers/fetchVideoSuggestions";
+import { Link } from "react-router-dom";
 
 function Navbar() {
   const [user, loading, error] = useAuthState(auth);
@@ -25,10 +26,12 @@ function Navbar() {
   const isLargeDevice = useMediaQuery("only screen and (min-width : 993px)");
 
   return (
-    <div className="w-full h-24 bg-primaryDark text-white px-6 fixed">
+    <div className="w-full h-24 bg-primaryDark text-white px-6 fixed z-50">
       <div className="h-full max-w-[1920px] mx-auto grid grid-cols-[auto_1fr_auto] gap-8 items-center">
         {/* Logo Section */}
-        <img src="/logo-placeholder.svg" width={60} height={60} />
+        <Link to={"/"}>
+          <img src="/logo-placeholder.svg" width={60} height={60} />
+        </Link>
 
         {/* Search Bar Section */}
         {!isMediumDevice && isLargeDevice && (

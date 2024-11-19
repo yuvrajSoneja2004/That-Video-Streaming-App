@@ -155,27 +155,27 @@ const CustomVideoPlayer = ({ bitrates }) => {
     });
   };
 
-  const getVideoBitrates = () => {
-    // If bitrates have already been fetched, use them from ref
-    if (bitrateRef.current) {
-      dispatch({ type: "SET_VIDEO_BITRATES", payload: bitrateRef.current });
-      return;
-    }
+  // const getVideoBitrates = () => {
+  //   // If bitrates have already been fetched, use them from ref
+  //   if (bitrateRef.current) {
+  //     dispatch({ type: "SET_VIDEO_BITRATES", payload: bitrateRef.current });
+  //     return;
+  //   }
 
-    const bitrates = playerRef.current
-      ?.getInternalPlayer("hls")
-      ?.levels?.map((bitrate: BitrateType) => ({
-        [bitrate?.width]: bitrate?.url[0],
-      }))
-      ?.reverse();
+  //   const bitrates = playerRef.current
+  //     ?.getInternalPlayer("hls")
+  //     ?.levels?.map((bitrate: BitrateType) => ({
+  //       [bitrate?.width]: bitrate?.url[0],
+  //     }))
+  //     ?.reverse();
 
-    console.log(bitrates);
+  //   console.log(bitrates);
 
-    if (bitrates && bitrates.length > 0) {
-      bitrateRef.current = bitrates; // Store the fetched bitrates in the ref
-      dispatch({ type: "SET_VIDEO_BITRATES", payload: bitrates });
-    }
-  };
+  //   if (bitrates && bitrates.length > 0) {
+  //     bitrateRef.current = bitrates; // Store the fetched bitrates in the ref
+  //     dispatch({ type: "SET_VIDEO_BITRATES", payload: bitrates });
+  //   }
+  // };
   useEffect(() => {
     if (screenfull.isEnabled) {
       const handleFullscreenChange = () => {
@@ -211,7 +211,8 @@ const CustomVideoPlayer = ({ bitrates }) => {
 
   useEffect(() => {
     dispatch({ type: "PLAY_VIDEO", payload: videoUrlId?.videoId });
-  }, []);
+    dispatch({ type: "HANDLE_PLAY_PAUSE", payload: true });
+  }, [videoUrlId?.videoId]);
 
   const VideoOptions = ({
     isOptionsOpen,
@@ -224,107 +225,105 @@ const CustomVideoPlayer = ({ bitrates }) => {
 
     return (
       <div className="absolute bottom-[60px] right-0 bg-[#1a1a1a] rounded-lg overflow-hidden w-[200px]">
-        <AnimatePresence initial={false} custom={direction}>
-          <h1>{state.currentBitrate}</h1>
-
-          {activeMenu === "main" && (
-            <motion.div
-              key="main"
-              custom={direction}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3 }}
-            >
-              {VIDEO_PLAYER_OPTIONS.map((option, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
-                  onClick={() => {
-                    if (option.slug === "quality") {
-                      setDirection(1);
-                      setActiveMenu("quality");
-                    } else if (option.slug === "playspeed") {
-                      setDirection(1);
-                      setActiveMenu("playspeed");
-                    }
-                  }}
-                >
-                  {option.icon}
-                  <span>{option.title}</span>
-                </div>
-              ))}
-            </motion.div>
-          )}
-          {activeMenu === "quality" && (
-            <motion.div
-              key="quality"
-              custom={direction}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3 }}
-            >
-              <div className="p-2 border-b border-gray-700">
-                <button
-                  className="flex items-center gap-2"
-                  onClick={() => {
-                    setDirection(-1);
-                    setActiveMenu("main");
-                  }}
-                >
-                  <IoMdSettings size={20} />
-                  <span>Quality</span>
-                </button>
+        {activeMenu === "main" && (
+          <motion.div
+            key="main"
+            custom={direction}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+          >
+            {VIDEO_PLAYER_OPTIONS.map((option, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
+                onClick={() => {
+                  if (option.slug === "quality") {
+                    setDirection(1);
+                    setActiveMenu("quality");
+                  } else if (option.slug === "playspeed") {
+                    setDirection(1);
+                    setActiveMenu("playspeed");
+                  }
+                }}
+              >
+                {option.icon}
+                <span>{option.title}</span>
               </div>
-              {vidBitrates?.map((quality: number, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
-                  onClick={() => handleQualityChange(quality)}
-                >
-                  <span>{quality}p</span>
-                </div>
-              ))}
-            </motion.div>
-          )}
-          {/* Playback speed  */}
-          {activeMenu === "playspeed" && (
-            <motion.div
-              key="playspeed"
-              custom={direction}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3 }}
-            >
-              <div className="p-2 border-b border-gray-700">
-                <button
-                  className="flex items-center gap-2"
-                  onClick={() => {
-                    setDirection(-1);
-                    setActiveMenu("main");
-                  }}
-                >
-                  <IoMdSettings size={20} />
-                  <span>Playback Speed</span>
-                </button>
+            ))}
+          </motion.div>
+        )}
+        {activeMenu === "quality" && (
+          <motion.div
+            key="quality"
+            custom={direction}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+          >
+            <div className="p-2 border-b border-gray-700">
+              <button
+                className="flex items-center gap-2"
+                onClick={() => {
+                  setDirection(-1);
+                  setActiveMenu("main");
+                }}
+              >
+                <IoMdSettings size={20} />
+                <span>Quality</span>
+              </button>
+            </div>
+            {vidBitrates?.map((quality: number, index: number) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
+                onClick={() => handleQualityChange(quality)}
+              >
+                <span>{quality}p</span>
               </div>
-              {VIDEO_PLAYER_OPTIONS[0].speedList?.map((speed, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
-                  onClick={() => handleSpeedChange(speed)}
-                >
-                  <span>{speed}x</span>
-                </div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            ))}
+          </motion.div>
+        )}
+        {/* Playback speed  */}
+        {activeMenu === "playspeed" && (
+          <motion.div
+            key="playspeed"
+            custom={direction}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+          >
+            <div className="p-2 border-b border-gray-700">
+              <button
+                className="flex items-center gap-2"
+                onClick={() => {
+                  setDirection(-1);
+                  setActiveMenu("main");
+                }}
+              >
+                <IoMdSettings size={20} />
+                <span>Playback Speed</span>
+              </button>
+            </div>
+            {VIDEO_PLAYER_OPTIONS[0].speedList?.map((speed, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 p-3 hover:bg-black cursor-pointer"
+                onClick={() => handleSpeedChange(speed)}
+              >
+                <span>{speed}x</span>
+              </div>
+            ))}
+          </motion.div>
+        )}
       </div>
     );
   };
+
+  if (!videoUrlId?.videoId) return <h1>Loading...</h1>;
 
   return (
     <div
@@ -334,6 +333,8 @@ const CustomVideoPlayer = ({ bitrates }) => {
       ref={containerRef}
       onDoubleClick={toggleFullScreen}
     >
+      {/* <h1>{state.currentBitrate}</h1>
+      <h1>{String(state.playing)}</h1> */}
       <ReactPlayer
         ref={playerRef}
         url={state.currentBitrate}
@@ -343,11 +344,11 @@ const CustomVideoPlayer = ({ bitrates }) => {
         playbackRate={state.playbackRate}
         volume={state.volume}
         muted={state.muted}
-        pip={true}
+        // pip={true}
         onDuration={handleDuration}
         onProgress={handleProgress}
         style={{ borderRadius: "20px" }}
-        onReady={getVideoBitrates}
+        // onReady={() => }
       />
       <div
         className={`absolute bottom-0 left-0 right-0 p-4 transition-opacity duration-300 ${
@@ -431,3 +432,5 @@ const CustomVideoPlayer = ({ bitrates }) => {
 };
 
 export default CustomVideoPlayer;
+
+

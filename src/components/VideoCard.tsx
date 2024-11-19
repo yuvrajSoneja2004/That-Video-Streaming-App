@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Avatar from "./ui/Avatar";
+import { formatViews } from "../utils/formatViews";
+import RelativeTime from "../utils/RelativeTime";
 
 interface VideoSchema {
   id: string;
@@ -11,6 +13,8 @@ interface VideoSchema {
   avatarUrl?: string;
   creator?: string;
   views: number;
+  createdAt?: string;
+  videoUrl: string;
   channel: {
     id: number;
     avatarUrl: string;
@@ -29,7 +33,9 @@ function VideoCard({ videoInfo, isStatic }: Props) {
     views,
     avatarUrl: localAvatar,
     previewGif,
+    createdAt,
     creator,
+    videoUrl,
     channel,
   } = videoInfo;
 
@@ -37,7 +43,7 @@ function VideoCard({ videoInfo, isStatic }: Props) {
 
   return (
     <Link
-      to={`/channel/${channel?.id}`}
+      to={`/watch/${videoUrl}`}
       className="max-w-[330.9px] min-h-[201.32px]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -74,7 +80,14 @@ function VideoCard({ videoInfo, isStatic }: Props) {
             {channel?.name}
           </p>
           <p className="text-sm text-wrap text-ellipsis">
-            {views}K views 1 year ago
+            {formatViews(views)}{" "}
+            <span className="ml-2">
+              {createdAt ? (
+                <RelativeTime createdAt={createdAt} />
+              ) : (
+                <span>3 days ago</span>
+              )}
+            </span>
           </p>
         </div>
       </div>
