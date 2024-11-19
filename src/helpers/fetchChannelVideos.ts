@@ -9,9 +9,9 @@ export const fetchChannelVideos = async (
 ) => {
   try {
     const { data } = await axiosInstance.get(
-      `/users/getInfo/${channelId}?filter={${filterQuery}}`
+      `/video/getChannelVideos/${channelId}?filter=${filterQuery}&page=${page}&limit=${limit}`
     );
-    return data?.data;
+    return data;
   } catch (error) {
     console.error("Error fetching channel videos:", error);
     throw error;

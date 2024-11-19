@@ -4,56 +4,18 @@ import { useInfiniteQuery } from "react-query";
 import { fetchChannelVideos, Filters } from "../../helpers/fetchChannelVideos";
 import { useOutletContext } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
-
-// Define interfaces
-interface Video {
-  id: string;
-  // Add other video properties here
-}
-
-interface PageData {
-  videos: Video[];
-  nextCursor: string | null;
-}
+import { THEME } from "../../constants/theme";
 
 const VIDEOS_PER_PAGE = 8;
 
 function ChannelVideos() {
-  // Generate dummy data with more realistic content
-  const videos = Array.from({ length: 20 }, (_, index) => ({
-    id: crypto.randomUUID(),
-    title: `Video Title ${index + 1} - Amazing Content`,
-    description: `This is a description for video ${
-      index + 1
-    }. It contains interesting information about the video content.`,
-    thumbnail: `https://picsum.photos/seed/${index}/300/200`, // Using picsum for random thumbnails
-    views: Math.floor(Math.random() * 1000000) + 1000, // Random view count between 1k and 1M
-    uploadedAt: new Date(
-      Date.now() - Math.random() * 10000000000
-    ).toISOString(), // Random date within recent past
-  }));
-
-  const [currentFilterQuery, setCurrentFilterQuery] =
-    useState<Filters>("recent");
-
-  // Create ref for intersection observer
+  const [currentFilterQuery, setCurrentFilterQuery] = useState<Filters>("recent");
   const { ref, inView } = useInView();
   const channelId: number = useOutletContext();
 
-  // Modified fetch function to handle pagination
-  const fetchChannelVideoPage = async ({
-    pageParam = 0,
-  }): Promise<PageData> => {
-    const response = await fetchChannelVideos(
-      pageParam,
-      VIDEOS_PER_PAGE,
-      channelId,
-      currentFilterQuery
-    );
-    return {
-      videos: response.videos,
-      nextCursor: response.hasMore ? String(pageParam + 1) : null,
-    };
+  // Fetch paginated videos with filter
+  const fetchChannelVideoPage = async ({ pageParam = 0 }) => {
+    return await fetchChannelVideos(pageParam, VIDEOS_PER_PAGE, channelId, currentFilterQuery);
   };
 
   const {
@@ -63,48 +25,82 @@ function ChannelVideos() {
     error,
     hasNextPage,
     fetchNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery(["channelVideos"], fetchChannelVideoPage, {
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    refetchOnWindowFocus: false,
-  });
+    refetch,
+    isFetchingNextPage
+  } = useInfiniteQuery(
+    ["channelVideos", currentFilterQuery],
+    fetchChannelVideoPage,
+    {
+      getNextPageParam: (lastPage, allPages) => lastPage?.hasMore ? allPages.length : undefined,
+      refetchOnWindowFocus: false,
+    }
+  );
 
-  // Fetch next page when the last element is in view
+  // Fetch next page when inView is true
   React.useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage]);
 
+  // Change filter and refetch videos
+  const changeFilter = (filter: Filters) => {
+    setCurrentFilterQuery(filter);
+    refetch();
+  };
+
   if (isError) {
-    return (
-      <div className="text-center mt-20">Error: {(error as Error).message}</div>
-    );
+    return <div className="text-center mt-20">Error: {(error as Error).message}</div>;
   }
+
+  if(isLoading) return <h1>Loading...</h1>
 
   return (
     <div className="max-w-[1800px] mx-auto px-4 py-6">
-      {/* Filters Section - Similar to YouTube's */}
-      <div className="mb-6 flex items-center space-x-4 border-b pb-4">
-        <button className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium hover:bg-gray-200">
+      {/* Filters Section */}
+      <div className="mb-3 flex items-center space-x-4  pb-4">
+        <button
+          onClick={() => changeFilter("recent")}
+          className={`px-3 py-1 ${
+            currentFilterQuery === "recent" ? "bg-white text-black" : "bg-[#1a1a1a] text-white"
+          } rounded-md text-md font-medium `}
+        >
           Latest
         </button>
-        <button className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium hover:bg-gray-200">
+        <button
+          onClick={() => changeFilter("popular")}
+          className={`px-3 py-1 ${
+            currentFilterQuery === "popular" ? "bg-white text-black" : "bg-[#1a1a1a] text-white"
+          } rounded-md text-md font-medium `}
+        >
           Popular
         </button>
-        <button className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium hover:bg-gray-200">
+        <button
+          onClick={() => changeFilter("oldest")}
+          className={`px-3 py-1 ${
+            currentFilterQuery === "oldest" ? "bg-white text-black" : "bg-[#1a1a1a] text-white"
+          } rounded-md text-md font-medium`}
+        >
           Oldest
         </button>
       </div>
 
       {/* Videos Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {videos.map((item: any) => (
-          <div key={item.id} className="w-full">
-            <VideoCard videoInfo={item} />
-          </div>
-        ))}
+        {data?.pages.map((page) =>
+          page.videos.map((video: any) => (
+            <div key={video.id} className="w-full">
+              <VideoCard videoInfo={video} />
+            </div>
+          ))
+        )}
       </div>
+
+      {/* Intersection Observer Trigger */}
+      <div ref={ref} className="h-10"></div>
+
+      {/* Loading Indicator */}
+      {isLoading || isFetchingNextPage ? <div className="text-center">Loading...</div> : null}
     </div>
   );
 }

@@ -22,6 +22,8 @@ const Avatar: React.FC<AvatarProps> = ({ size = 50, src = DEFAULT_AVATAR }) => {
           className="w-full h-full object-cover"
           width={size}
           height={size}
+          referrerPolicy="no-referrer"
+
         />
       </div>
     </div>
