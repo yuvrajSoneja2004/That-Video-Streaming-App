@@ -20,8 +20,9 @@ function Routing() {
     <Router>
       <AuthWrapper>
         <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <div className="flex-grow">
+          {/* <Navbar /> */}
+        <TestHome>
+        <div className="flex-grow">
             <Routes>
               <Route path="/" element={<RootLayout />}>
                 <Route index element={<Home />} />
@@ -40,6 +41,7 @@ function Routing() {
 
             </Routes>
           </div>
+        </TestHome>
         </div>
       </AuthWrapper>
     </Router>

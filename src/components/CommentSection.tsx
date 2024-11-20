@@ -77,7 +77,7 @@ export default function CommentSection() {
 
       {/* Add Comment */}
       <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-        <Avatar src="/placeholder.svg?height=40&width=40" />
+        {/* <Avatar src="/placeholder.svg?height=40&width=40" /> */}
         <TextField
           fullWidth
           placeholder="Add a comment..."

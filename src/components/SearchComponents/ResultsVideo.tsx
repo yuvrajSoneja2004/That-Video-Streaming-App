@@ -95,10 +95,10 @@ export default function ResultsVideo({ data }: { data: Video }) {
         </Box>
         <Link to={`/channel/${data?.channel?.id}`}>
           <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-            <Avatar
+            {/* <Avatar
               src={data?.channel.avatarUrl}
               sx={{ width: 24, height: 24, mr: 1 }}
-            />
+            /> */}
             <Typography
               variant="body2"
               color="#fff"

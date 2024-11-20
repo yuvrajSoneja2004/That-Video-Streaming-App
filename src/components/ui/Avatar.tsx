@@ -1,33 +1,48 @@
-import React from "react";
+import * as React from "react"
+import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
-interface AvatarProps {
-  size?: number;
-  src: string;
-  hasRing?: boolean;
-}
+import { cn } from "@/lib/utils"
 
-const DEFAULT_AVATAR =
-  "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+const Avatar = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Root
+    ref={ref}
+    className={cn(
+      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+      className
+    )}
+    {...props}
+  />
+))
+Avatar.displayName = AvatarPrimitive.Root.displayName
 
-const Avatar: React.FC<AvatarProps> = ({ size = 50, src = DEFAULT_AVATAR }) => {
-  return (
-    <div className="avatar">
-      <div
-        className="rounded-full overflow-hidden"
-        style={{ width: `${size}px`, height: `${size}px` }}
-      >
-        <img
-          src={src}
-          alt="Avatar"
-          className="w-full h-full object-cover"
-          width={size}
-          height={size}
-          referrerPolicy="no-referrer"
+const AvatarImage = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Image>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Image
+    ref={ref}
+    className={cn("aspect-square h-full w-full", className)}
+    {...props}
+  />
+))
+AvatarImage.displayName = AvatarPrimitive.Image.displayName
 
-        />
-      </div>
-    </div>
-  );
-};
+const AvatarFallback = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Fallback>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Fallback
+    ref={ref}
+    className={cn(
+      "flex h-full w-full items-center justify-center rounded-full bg-muted",
+      className
+    )}
+    {...props}
+  />
+))
+AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
 
-export default Avatar;
+export { Avatar, AvatarImage, AvatarFallback }

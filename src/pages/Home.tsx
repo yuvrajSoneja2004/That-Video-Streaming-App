@@ -57,8 +57,8 @@ function Home() {
   }
 
   return (
-    <div className="p-7 mt-20">
-      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5 place-items-center">
+    <div className="p-7">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 place-items-center">
         {data?.pages.map((page) =>
           page.videos.map((video, index) => (
             <VideoCard key={video.id} videoInfo={video} />

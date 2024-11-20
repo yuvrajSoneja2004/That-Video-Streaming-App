@@ -109,7 +109,7 @@ export default function SingleVideoPage() {
                   gap: 2,
                 }}
               >
-                <Avatar src={channelInfo?.avatarUrl} />
+                {/* <Avatar src={channelInfo?.avatarUrl} /> */}
                 <Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                     {channelInfo?.name}

@@ -277,9 +277,9 @@ export default function ChannelCustomizeModal({
               <CardContent>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <Box sx={{ position: "relative" }}>
-                    <Avatar src={previewProfile} sx={{ width: 80, height: 80 }}>
+                    {/* <Avatar src={previewProfile} sx={{ width: 80, height: 80 }}>
                       {!previewProfile && <CameraAltIcon />}
-                    </Avatar>
+                    </Avatar> */}
                     <label htmlFor="profile-picture-upload">
                       <Input
                         accept="image/*"

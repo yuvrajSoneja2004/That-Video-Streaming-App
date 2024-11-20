@@ -34,7 +34,7 @@ const ChannelInfo: React.FC<ChannelInfoProps> = ({
   const handleClose = () => setOpen(false);
   return (
     <div className="flex gap-4 mt-8">
-      <Avatar size={160} src={avatarUrl} />
+      {/* <Avatar size={160} src={avatarUrl} /> */}
       <div className="flex flex-col justify-start items-start gap-2">
         <div className="flex gap-3 items-center">
           <h1 className="text-4xl font-bold text-white">{name}</h1>

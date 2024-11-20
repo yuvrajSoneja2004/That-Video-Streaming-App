@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Avatar from "./ui/Avatar";
 import { formatViews } from "../utils/formatViews";
 import RelativeTime from "../utils/RelativeTime";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
 
 interface VideoSchema {
   id: string;
@@ -21,6 +21,7 @@ interface VideoSchema {
     name: string;
   };
 }
+
 interface Props {
   videoInfo: VideoSchema;
   isStatic?: boolean;
@@ -44,11 +45,11 @@ function VideoCard({ videoInfo, isStatic }: Props) {
   return (
     <Link
       to={`/watch/${videoUrl}`}
-      className="max-w-[330.9px] min-h-[201.32px]"
+      className="w-full sm:max-w-[330.9px] block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div>
+      <div className="w-full sm:max-w-[330.9px] aspect-video">
         {!isStatic ? (
           <img
             src={
@@ -59,29 +60,31 @@ function VideoCard({ videoInfo, isStatic }: Props) {
                 : thumbnail
             }
             alt="Video"
-            className="rounded-lg w-[320px] h-[200px]"
+            className="rounded-lg w-full h-full object-cover"
           />
         ) : (
           <img
             src={thumbnail ? thumbnail : "/video-placeholder.jpg"}
             alt="Video"
-            className="rounded-lg w-[320px] h-[200px]"
+            className="rounded-lg w-full h-full object-cover"
           />
         )}
       </div>
       <div className="flex items-start gap-3 mt-3">
-        <Avatar
-          size={36}
-          src={isStatic ? localAvatar : channel?.avatarUrl || ""}
-        />
-        <div className="flex flex-col">
-          <p className="text-md font-bold text-wrap text-ellipsis">{title}</p>
-          <p className="text-sm text-wrap text-ellipsis my-1">
+        <Avatar className="w-9 h-9">
+          <AvatarImage src={isStatic ? localAvatar : channel?.avatarUrl || ""} />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+
+        <div className="flex flex-col flex-grow min-w-0">
+          <p className="text-md font-bold truncate text-white">{title}</p>
+          <p className="text-sm truncate text-gray-400 my-1">
             {channel?.name}
           </p>
-          <p className="text-sm text-wrap text-ellipsis">
-            {formatViews(views)}{" "}
-            <span className="ml-2">
+          <p className="text-sm text-gray-400 flex items-center">
+            <span className="truncate">{formatViews(views)}</span>
+            <span className="mx-1">•</span>
+            <span className="truncate">
               {createdAt ? (
                 <RelativeTime createdAt={createdAt} />
               ) : (

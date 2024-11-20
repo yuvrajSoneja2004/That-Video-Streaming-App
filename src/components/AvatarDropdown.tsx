@@ -62,7 +62,7 @@ const AvatarDropdown: React.FC<AvatarDropdownProps> = ({ avatarUrl }) => {
     <div>
       {/* Avatar or icon to trigger the menu */}
       <IconButton onClick={handleClick}>
-        <Avatar>
+        {/* <Avatar>
           <img
             src={avatarUrl}
             alt="Avatar"
@@ -71,7 +71,7 @@ const AvatarDropdown: React.FC<AvatarDropdownProps> = ({ avatarUrl }) => {
             height={30}
             referrerPolicy="no-referrer"
           />
-        </Avatar>
+        </Avatar> */}
       </IconButton>
 
       {/* Menu component */}
