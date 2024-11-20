@@ -12,6 +12,7 @@ import ChannelShorts from "./components/ChannelPageComponents/ChannelShorts";
 import { AuthWrapper } from "./wrappers/AuthCheck";
 import SearchResults from "./pages/SearchResults";
 import SingleVideoPage from "./pages/SingleVideoPage";
+import TestHome from "./testingComps/TestHomePage";
 // Import channel page components
 
 function Routing() {
@@ -35,6 +36,8 @@ function Routing() {
               </Route>
               <Route path="/results" element={<SearchResults />} />
               <Route path="/watch/:videoId" element={<SingleVideoPage />} />
+              <Route path="/uiTest" element={<TestHome />} />
+
             </Routes>
           </div>
         </div>
