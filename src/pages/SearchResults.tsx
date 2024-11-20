@@ -24,7 +24,7 @@ function SearchResults() {
   console.log("quest", data);
 
   return (
-    <div className="text-white mt-20 m-5">
+    <div className="text-white  m-5">
       <ResultsPageSimpleFilter />
       {isLoading && <p>Loading...</p>}
       {isError && <p>Error fetching data: {error?.message}</p>}

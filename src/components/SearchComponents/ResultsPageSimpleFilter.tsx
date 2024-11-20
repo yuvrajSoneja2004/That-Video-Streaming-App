@@ -22,7 +22,7 @@ const StyledTabs = styled(Tabs)({
 
 const StyledAppBar = styled(AppBar)({
   backgroundColor: "#0f0f0f",
-  marginTop: 100,
+  // marginTop: 100,
   marginBottom: 40,
 });
 

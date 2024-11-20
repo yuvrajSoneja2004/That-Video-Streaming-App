@@ -1,20 +1,16 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  ChangeEvent,
-  FormEvent,
-} from "react";
-import { IoIosSearch } from "react-icons/io";
+import React, { useState, useRef, useEffect, FormEvent } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-import VideoSuggestionsBox from "./VideoSuggestionsBox";
-import { saveToGlobalSuggestions } from "../helpers/fetchVideoSuggestions";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { Search, Mic } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import VideoSuggestionsBox from "./VideoSuggestionsBox";
+import { saveToGlobalSuggestions } from "../helpers/fetchVideoSuggestions";
 
-interface SearchBar {}
+interface SearchBarProps {}
 
-const SearchBar: React.FC<SearchBar> = () => {
+const SearchBar: React.FC<SearchBarProps> = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isShowSuggestions, setIsShowSuggestions] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -26,7 +22,6 @@ const SearchBar: React.FC<SearchBar> = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Function to handle clicks outside the search container
     const handleClickOutside = (event: MouseEvent) => {
       if (
         searchContainerRef.current &&
@@ -36,16 +31,13 @@ const SearchBar: React.FC<SearchBar> = () => {
       }
     };
 
-    // Add event listener when component mounts
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup event listener when component unmounts
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
@@ -60,32 +52,34 @@ const SearchBar: React.FC<SearchBar> = () => {
   };
 
   return (
-    <div className="w-full relative" ref={searchContainerRef}>
-      <div className="w-full">
-        <form
-          onSubmit={handleSubmit}
-          className="flex items-center bg-transparent rounded-full shadow-md w-full"
-          style={{ border: "1px solid #62626249" }}
-        >
-          <input
+    <div className="relative w-full max-w-xl" ref={searchContainerRef}>
+      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <div className="relative flex-grow">
+          <Input
             type="text"
             value={searchQuery}
             onChange={handleInputChange}
             onFocus={handleSearchFocus}
-            className="flex-grow bg-transparent px-6 py-3 focus:outline-none rounded-l-full"
+            className="w-full bg-gray-900 border-gray-700 pr-10"
             placeholder="Search"
           />
-          <button
-            type="submit"
-            className="text-white px-6 py-3 rounded-r-full h-full bg-transparent hover:bg-opacity-10 hover:bg-white transition-colors"
-            style={{ borderLeft: "1px solid #62626249" }}
+          <Button 
+            type="submit" 
+            size="icon"
+            variant="ghost" 
+            className="absolute right-0 top-0 h-full"
           >
-            <IoIosSearch size={27} />
-          </button>
-        </form>
-      </div>
+            <Search className="h-5 w-5" />
+          </Button>
+        </div>
+        <Button size="icon" variant="ghost">
+          <Mic className="h-5 w-5" />
+        </Button>
+      </form>
       {isShowSuggestions && (
-        <VideoSuggestionsBox query={debouncedSearchQuery} />
+        <div className="absolute w-full z-10 mt-1">
+          <VideoSuggestionsBox query={debouncedSearchQuery} />
+        </div>
       )}
     </div>
   );

@@ -14,7 +14,7 @@ export default function TestHome({children}) {
 
   return (
     <div className="flex h-screen bg-black text-white">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {/* <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} /> */}
       <div className="flex-1 overflow-auto">
         <Navbar onMenuClick={toggleSidebar} />
         {/* <VideoGrid /> */}

@@ -24,6 +24,8 @@ import {
 import { formatTime } from "../utils/formatTime";
 import { VIDEO_PLAYER_OPTIONS } from "../constants/options";
 import { useParams } from "react-router-dom";
+import { Expand, Pause, PictureInPicture, Play, RectangleHorizontal, Settings, Shrink, SkipBack, SkipForward, Volume2, VolumeOff } from "lucide-react";
+import ProgressBar from "./video/ProgressBar";
 
 type BitrateType = {
   width: number;
@@ -327,7 +329,8 @@ const CustomVideoPlayer = ({ bitrates }) => {
 
   return (
     <div
-      className="relative max-w-3xl mx-auto w-[723px] h-[412px] rounded-lg"
+      className="relative  w-full h-[412px] rounded-lg"
+      // className="relative max-w-3xl mx-auto w-[723px] h-[412px] rounded-lg"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       ref={containerRef}
@@ -355,28 +358,34 @@ const CustomVideoPlayer = ({ bitrates }) => {
           state.controlsVisible || !state.playing ? "opacity-100" : "opacity-0"
         }`}
       >
-        <input
+        {/* <input
           type="range"
           min="0"
           max={state.duration}
           value={state.currentTime}
           onChange={handleSeek}
           className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 mb-4"
-        />
+        /> */}
+        <ProgressBar
+  duration={state.duration}
+  currentTime={state.currentTime}
+  onSeek={handleSeek}
+/>
         <div className="flex items-center justify-between text-white relative">
           <div className="flex gap-5 w-full">
             <button>
-              <IoIosSkipBackward size={ICON_SIZE} />
+              {/* <IoIosSkipBackward size={ICON_SIZE} /> */}
+              <SkipBack size={ICON_SIZE}/>
             </button>
             <button onClick={handlePlayPause}>
               {state.playing ? (
-                <IoIosPause size={ICON_SIZE} />
+                <Pause size={ICON_SIZE} />
               ) : (
-                <IoIosPlay size={ICON_SIZE} />
+                <Play size={ICON_SIZE} />
               )}
             </button>
             <button>
-              <IoIosSkipForward size={ICON_SIZE} />
+              <SkipForward size={ICON_SIZE} />
             </button>
             <button
               onClick={handleMute}
@@ -388,9 +397,9 @@ const CustomVideoPlayer = ({ bitrates }) => {
               }
             >
               {state.muted ? (
-                <IoVolumeMute size={ICON_SIZE} />
+                <VolumeOff size={ICON_SIZE} />
               ) : (
-                <IoVolumeHigh size={ICON_SIZE} />
+                <Volume2 size={ICON_SIZE} />
               )}
             </button>
             <div className="flex items-center flex-1 mx-4 relative w-full">
@@ -401,23 +410,23 @@ const CustomVideoPlayer = ({ bitrates }) => {
           </div>
           <div className="flex gap-5">
             <button onClick={handleOptions} ref={settingsRef}>
-              <IoMdSettings size={ICON_SIZE} />
+              <Settings size={ICON_SIZE} />
             </button>
             <button
               onClick={async () => {
                 //PIP logic here.
               }}
             >
-              <BsPip size={ICON_SIZE} />
+              <PictureInPicture size={ICON_SIZE} />
             </button>
             <button>
-              <LuRectangleHorizontal size={ICON_SIZE} />
+              <RectangleHorizontal size={ICON_SIZE} />
             </button>
             <button onClick={toggleFullScreen}>
               {state.isFullscreen ? (
-                <IoContractOutline size={ICON_SIZE} />
+                <Shrink size={ICON_SIZE} />
               ) : (
-                <IoExpandOutline size={ICON_SIZE} />
+                <Expand size={ICON_SIZE} />
               )}
             </button>
           </div>
