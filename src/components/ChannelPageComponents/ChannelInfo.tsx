@@ -1,5 +1,5 @@
 import { RiVerifiedBadgeFill } from "react-icons/ri";
-import Avatar from "../ui/Avatar";
+import {Avatar , AvatarFallback , AvatarImage} from "../ui/Avatar";
 import { Button } from "@mui/material";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../utils/firebase";
@@ -35,6 +35,10 @@ const ChannelInfo: React.FC<ChannelInfoProps> = ({
   return (
     <div className="flex gap-4 mt-8">
       {/* <Avatar size={160} src={avatarUrl} /> */}
+      <Avatar className="h-[160px] w-[160px]">
+                  <AvatarImage src={avatarUrl} alt="@username" className="object-cover" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
       <div className="flex flex-col justify-start items-start gap-2">
         <div className="flex gap-3 items-center">
           <h1 className="text-4xl font-bold text-white">{name}</h1>

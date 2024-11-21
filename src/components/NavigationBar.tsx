@@ -14,6 +14,7 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { auth } from "@/utils/firebase"
 import { useUserStore } from "@/states/user"
 import SearchBar from "./SearchBar"
+import { Link } from "react-router-dom"
 
 interface NavbarProps {
   onMenuClick: () => void
@@ -68,10 +69,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 bg-black/95 text-white border-gray-900" align="end" forceMount>
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>My Account</span>
+            <Link to={`/channel/${user?.uid}`}>
+            <DropdownMenuItem>
+               <User className="mr-2 h-4 w-4" />
+               <span>My Account</span>
               </DropdownMenuItem>
+            </Link>
               <DropdownMenuItem onSelect={() => setIsDarkMode(!isDarkMode)}>
                 <Moon className="mr-2 h-4 w-4" />
                 <span>Dark Mode</span>

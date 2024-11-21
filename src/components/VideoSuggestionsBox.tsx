@@ -39,7 +39,7 @@ function VideoSuggestionsBox({ query }: { query: string }) {
 
   if (isError) {
     return (
-      <div className="w-full min-h-[400px] bg-white absolute top-12 left-0 rounded-lg mt-3 flex items-center justify-center text-red-500">
+      <div className="w-full min-h-[400px] bg-white absolute top-12 left-0 rounded-lg flex items-center justify-center text-red-500">
         Error: {error.message}
       </div>
     );
@@ -51,7 +51,7 @@ function VideoSuggestionsBox({ query }: { query: string }) {
 
   return (
     <div
-      className="w-full  absolute top-12 left-0 rounded-lg mt-3"
+      className="w-full  absolute top-0 left-0 rounded-lg "
       style={{ background: THEME.dark.backgroundSecondary }}
     >
       {data?.map((item: any) => (

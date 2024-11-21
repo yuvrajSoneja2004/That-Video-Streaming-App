@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useQueries } from "react-query"
 import { Button } from "@/components/ui/button"
@@ -21,10 +21,12 @@ import RelativeTime from "../utils/RelativeTime"
 import CommentSection from "../components/CommentSection"
 import CustomVideoPlayer from "../components/CustomPlayer"
 import UpNextVideoCard from "../components/UpNextVideoCard"
+import { useGlobalState } from "@/states/global"
 
 export default function SingleVideoPage() {
   const [isSubscribed, setIsSubscribed] = useState(false)
   const { videoId } = useParams()
+  const {setShowSidebar} = useGlobalState()
   
   const queryResults = useQueries([
     {
@@ -41,6 +43,13 @@ export default function SingleVideoPage() {
   const videoMetaData = videoMetaDataInfo.data
   const channelInfo = videoMetaData?.channel
 
+  
+
+  useEffect(() => {
+    setShowSidebar(false)
+
+    return () => setShowSidebar(true)
+  } , [])
   if (videoMetaDataInfo.isLoading || videoSuggestionsInfo?.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -48,7 +57,6 @@ export default function SingleVideoPage() {
       </div>
     )
   }
-
   return (
     <div className="min-h-screen bg-black text-white pt-16">
       <div className="container mx-auto px-4 lg:px-8">

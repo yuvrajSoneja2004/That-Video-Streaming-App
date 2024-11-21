@@ -1,120 +1,34 @@
-import * as React from "react";
-import Button from "@mui/material/Button";
-import Modal from "@mui/material/Modal";
-import Box from "@mui/material/Box";
-import { FaFileUpload } from "react-icons/fa";
-import InputField from "../ui/InputField";
-import { RiUploadCloudLine } from "react-icons/ri";
-import { Stack, styled } from "@mui/material";
-import { videoCategories } from "../../constants/categories";
-import { BsStars } from "react-icons/bs";
-import { useMutation } from "react-query";
-import { generateVideoThumbnails } from "../../helpers/generateVideoThumbnails";
-import { SERVER_BASE_URL } from "../../utils/axiosInstance";
-import VideoCard from "../VideoCard";
-import SelectOptions from "../ui/SelectOptions";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
-import { THEME } from "../../constants/theme";
-import { uploadVideo } from "../../helpers/uploadVideo";
+'use client'
 
-function UploadVideoModel({ avatarUrl, name, channelId }) {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const selectVideoRef = React.useRef<HTMLInputElement>(null);
-  const [isVideoSelected, setIsVideoSelected] = React.useState<boolean>(false);
-  const [previewURL, setPreviewURL] = React.useState<string>("");
-
-  const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null);
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      setSelectedVideo(file);
-      setIsVideoSelected(true);
-      const prevUrl = URL.createObjectURL(file);
-      setPreviewURL(prevUrl);
-    }
-  };
-
-  const style = {
-    position: "absolute" as const,
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "80%",
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    borderRadius: "8px",
-  };
-
-  return (
-    <div>
-      <Button
-        variant="contained"
-        sx={{
-          borderRadius: 20,
-          background: "#fff",
-          color: "#000",
-          textTransform: "none",
-        }}
-        onClick={handleOpen}
-      >
-        <FileUploadOutlinedIcon sx={{ marginRight: 0.7, fontSize: 20 }} />
-        Upload
-      </Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          {!isVideoSelected ? (
-            <div
-              className="flex flex-col items-center justify-center  p-[100px]"
-              style={{ background: THEME.dark.background }}
-            >
-              <div className="bg-gray-800 rounded-full p-6 inline-block">
-                <FaFileUpload className="w-12 h-12" />
-              </div>
-              <h2 className="text-xl font-semibold my-5">
-                Drag and drop video files to upload
-              </h2>
-              <label className="block">
-                <span className="sr-only">Choose video files</span>
-                <input
-                  type="file"
-                  style={{ display: "none" }}
-                  accept="video/*"
-                  onChange={handleFileSelect}
-                  ref={selectVideoRef}
-                />
-              </label>
-              <Button onClick={() => selectVideoRef.current?.click()}>
-                Choose files
-              </Button>
-            </div>
-          ) : (
-            <VideoDetails
-              prevUrl={previewURL}
-              selectedVideo={selectedVideo}
-              name={name}
-              avatarUrl={avatarUrl}
-              channelId={channelId}
-            />
-          )}
-        </Box>
-      </Modal>
-    </div>
-  );
-}
-
-type VideoDetailsProps = {
-  prevUrl: string;
-  selectedVideo: File | null;
-};
+import * as React from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Progress } from "@/components/ui/progress"
+import { useMutation } from "react-query"
+import { UploadIcon as FileUpload, Stars, Upload } from 'lucide-react'
+import { videoCategories } from "../../constants/categories"
+import { generateVideoThumbnails } from "../../helpers/generateVideoThumbnails"
+import { SERVER_BASE_URL } from "../../utils/axiosInstance"
+import { uploadVideo } from "../../helpers/uploadVideo"
+import { useGlobalState } from "@/states/global"
+import { useToast } from "@/hooks/use-toast"
 
 function VideoDetails({
   prevUrl,
@@ -122,121 +36,100 @@ function VideoDetails({
   name,
   avatarUrl,
   channelId,
-}: VideoDetailsProps) {
-  const [title, setTitle] = React.useState<string>("");
-  const [description, setDescription] = React.useState<string>("");
-  const [thumbnail, setThumbnail] = React.useState<string>("");
-  const thumbnailRef = React.useRef<HTMLInputElement>(null);
-  const [selectedCategory, setSelectedCategory] = React.useState(
-    videoCategories[0]
-  );
+}: {
+  prevUrl: string
+  selectedVideo: File | null
+  name: string
+  avatarUrl: string
+  channelId: string
+}) {
+  const [title, setTitle] = React.useState("")
+  const [description, setDescription] = React.useState("")
+  const [thumbnail, setThumbnail] = React.useState("")
+  const [selectedCategory, setSelectedCategory] = React.useState(videoCategories[0])
+  const [uploadPercentage, setUploadPercentage] = React.useState(0)
+  const [currentUploadStage, setCurrentUploadStage] = React.useState("uploading")
+  const { setIsVideoUploaded,isVideoUploaded } = useGlobalState()
+  const {toast} = useToast()
 
-  const [uploadPercentage , setUploadPercentage] = React.useState(0);
-  
-  const [currentUploadStage,setCurrentUploadStage] = React.useState("uploading")
-  const style = {
-    display: "grid",
-    gridTemplateColumns: "60% auto",
-    gap: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#1f2937",
-    color: "white",
-    height: "100%",
-    padding: "19px",
-    paddingBottom: "39px",
-    paddingTop: "39px",
-  };
+  const thumbnailRef = React.useRef<HTMLInputElement>(null)
 
-  const leftGridStyle = {
-    maxHeight: "400px",
-    overflowY: "auto",
-    paddingRight: "10px",
-    paddingTop: "10px",
-  };
-
-  // Existing thumbnail generation mutation
   const { data, isLoading, mutate } = useMutation((formData: FormData) =>
     generateVideoThumbnails(formData)
-  );
+  )
 
-  console.log("i am going insane", data);
-  // New upload video mutation
   const uploadMutation = useMutation({
     mutationFn: async (uploadData: {
-      title: string;
-      description: string;
-      category: string;
-      thumbnail: string;
-      video: File;
+      title: string
+      description: string
+      category: string
+      thumbnail: string
+      video: File
     }) => {
-      const formData = new FormData();
-      formData.append("channelId", channelId);
-      formData.append("title", uploadData.title);
-      formData.append("description", uploadData.description);
-      formData.append("category", uploadData.category);
-      formData.append("thumbnail", uploadData.thumbnail);
-      formData.append("video", uploadData.video);
-  
+      const formData = new FormData()
+      formData.append("channelId", channelId)
+      formData.append("title", uploadData.title)
+      formData.append("description", uploadData.description)
+      formData.append("category", uploadData.category)
+      formData.append("thumbnail", uploadData.thumbnail)
+      formData.append("video", uploadData.video)
+
       return uploadVideo(formData, (progress) => {
-        setUploadPercentage(progress.progress);
+        setUploadPercentage(progress.progress)
+        if(progress.stage === "complete"){
+          setIsVideoUploaded(true);
+          toast({
+            title: "Uploaded Video Successfully",
+            description: "Other people can watch the video now.",
+          })
+
+        }
         setCurrentUploadStage(progress.stage)
-        // You can also track the stage if needed
-        console.log('Current stage:', progress.stage);
-        console.log('Current percent:' , progress.progress);
-        
-      });
+      })
     },
     onSuccess: (data) => {
-      console.log("Video uploaded successfully:", data);
-      // Close modal or show success message
-      handleClose?.(); // Make sure to pass handleClose as prop if needed
+      console.log("Video uploaded successfully:", data)
     },
     onError: (error) => {
-      console.error("Upload failed:", error);
-      // Show error message to user
+      console.error("Upload failed:", error)
     },
-  });
+  })
 
   const generateThumbnails = () => {
     if (selectedVideo) {
-      const formData = new FormData();
-      formData.append("video", selectedVideo);
-      mutate(formData);
+      const formData = new FormData()
+      formData.append("video", selectedVideo)
+      mutate(formData)
     }
-  };
+  }
 
   const handleThumbnailClick = (thumbUrl: string) => {
-    setThumbnail(`${SERVER_BASE_URL}/video${thumbUrl}`);
-  };
+    setThumbnail(`${SERVER_BASE_URL}/video${thumbUrl}`)
+  }
 
   const handleThumbnailSelection = () => {
     if (thumbnailRef.current) {
-      thumbnailRef.current.click();
+      thumbnailRef.current.click()
     }
-  };
-
-  const handleCategoryChange = (event: any) => {
-    setSelectedCategory(event.target.value);
-  };
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      const fileUrl = URL.createObjectURL(file);
-      setThumbnail(fileUrl);
+      const fileUrl = URL.createObjectURL(file)
+      setThumbnail(fileUrl)
     }
-  };
+  }
 
   const handleUpload = () => {
     if (!selectedVideo) {
-      console.error("No video selected");
-      return;
+      console.error("No video selected")
+      return
     }
 
     if (!title.trim()) {
-      console.error("Title is required");
-      return;
+      console.error("Title is required")
+      return
     }
 
     uploadMutation.mutate({
@@ -245,107 +138,178 @@ function VideoDetails({
       category: selectedCategory,
       thumbnail,
       video: selectedVideo,
-    });
-  };
+    })
+  }
 
   return (
-    <Box sx={style}>
-      <div style={leftGridStyle}>
-        <Stack gap={2}>
-          <InputField
-            label="Title"
-            placeholder="Add title that describes your video."
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            placeholder="Add title that describes your video"
             value={title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setTitle(e.target.value)
-            }
+            onChange={(e) => setTitle(e.target.value)}
           />
-          <InputField
-            label="Description"
-            placeholder="Tell viewers about your video."
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            placeholder="Tell viewers about your video"
             value={description}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setDescription(e.target.value)
-            }
+            onChange={(e) => setDescription(e.target.value)}
           />
-          <h2>Thumbnail</h2>
+        </div>
+        <div className="space-y-2">
+          <Label>Thumbnail</Label>
           <div className="flex gap-3">
             <input
               type="file"
               ref={thumbnailRef}
               accept="image/*"
               onChange={handleFileChange}
-              style={{ display: "none" }}
+              className="hidden"
             />
-            <div
-              className="p-4 px-8 border-2 border-dotted border-gray-400 flex justify-center items-center flex-col gap-2 text-sm hover:cursor-pointer"
-              onClick={handleThumbnailSelection}
-            >
-              <RiUploadCloudLine size={27} />
-              <span>Upload file</span>
-            </div>
-            <div
-              className="p-4 px-8 border-2 border-dotted border-gray-400 flex justify-center items-center flex-col gap-2 text-sm hover:cursor-pointer"
-              onClick={generateThumbnails}
-            >
-              <BsStars size={27} />
-              <span>Auto-generate</span>
-            </div>
+            <Button variant="outline" onClick={handleThumbnailSelection}>
+              <FileUpload className="mr-2 h-4 w-4" />
+              Upload file
+            </Button>
+            <Button variant="outline" onClick={generateThumbnails}>
+              <Stars className="mr-2 h-4 w-4" />
+              Auto-generate
+            </Button>
           </div>
-          {!isLoading &&
-            "Select an image from your video to use as a thumbnail"}
-          <div className="flex gap-2 ml-2">
-            {isLoading ? (
-              <h1>Generating....</h1>
-            ) : (
-              data?.map((thumb: string, i: number) => (
-                <img
-                  src={`${SERVER_BASE_URL}/video${thumb}`}
-                  key={i}
-                  alt="Thumbnail"
-                  width={123}
-                  height={66}
-                  className={`rounded-md cursor-pointer ${
-                    thumbnail === `${SERVER_BASE_URL}/video${thumb}`
-                      ? "outline outline-2 outline-blue-500"
-                      : ""
-                  }`}
-                  onClick={() => handleThumbnailClick(thumb)}
-                />
-              ))
-            )}
-          </div>
-          <span>Category</span>
-          <SelectOptions
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            options={videoCategories}
-          />
-          <Button
-            variant="contained"
-            onClick={handleUpload}
-            // disabled={uploadMutation.isLoading}
-          >
-            {uploadMutation.isLoading ? `Uploading... ${Math.round(uploadPercentage)}%` : "Upload Video"}
-          </Button>
-        </Stack>
+        </div>
+        {!isLoading && (
+          <p className="text-sm text-muted-foreground">
+            Select an image from your video to use as a thumbnail
+          </p>
+        )}
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {isLoading ? (
+            <p>Generating...</p>
+          ) : (
+            data?.map((thumb: string, i: number) => (
+              <img
+                src={`${SERVER_BASE_URL}/video${thumb}`}
+                key={i}
+                alt="Thumbnail"
+                className={`w-24 h-auto rounded-md cursor-pointer ${
+                  thumbnail === `${SERVER_BASE_URL}/video${thumb}`
+                    ? "ring-2 ring-primary"
+                    : ""
+                }`}
+                onClick={() => handleThumbnailClick(thumb)}
+              />
+            ))
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {videoCategories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button onClick={handleUpload} disabled={uploadMutation.isLoading}>
+          {uploadMutation.isLoading ? (
+            <>
+              Uploading... {Math.round(uploadPercentage)}%
+              <Progress value={uploadPercentage} className="w-full mt-2" />
+            </>
+          ) : (
+            "Upload Video"
+          )}
+        </Button>
       </div>
-      <VideoCard
-        videoInfo={{
-          id: crypto.randomUUID(),
-          title,
-          description,
-          avatarUrl,
-          creator: name,
-          thumbnailUrl: thumbnail ? thumbnail : "default-thumbnail.jpg",
-          views: 23,
-        }}
-        isStatic={true}
-      />
-    </Box>
-  );
+      <div className="bg-muted p-4 rounded-lg">
+        <h3 className="font-semibold mb-2">Video Preview</h3>
+        {thumbnail ? (
+          <img src={thumbnail} alt="Video thumbnail" className="w-full h-auto rounded-md" />
+        ) : (
+          <div className="w-full h-48 bg-secondary flex items-center justify-center rounded-md">
+            <p className="text-muted-foreground">No thumbnail selected</p>
+          </div>
+        )}
+        <div className="mt-4">
+          <h4 className="font-medium">{title || "Video Title"}</h4>
+          <p className="text-sm text-muted-foreground">{name}</p>
+        </div>
+      </div>
+    </div>
+  )
 }
 
+export default function UploadVideoModal({ avatarUrl, name, channelId }: { avatarUrl: string; name: string; channelId: string }) {
+  const [open, setOpen] = React.useState(false)
+  const [isVideoSelected, setIsVideoSelected] = React.useState(false)
+  const [previewURL, setPreviewURL] = React.useState("")
+  const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null)
+  const selectVideoRef = React.useRef<HTMLInputElement>(null)
+  const { setIsVideoUploaded,isVideoUploaded } = useGlobalState()
 
 
-export default UploadVideoModel;
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null
+    if (file) {
+      setSelectedVideo(file)
+      setIsVideoSelected(true)
+      const prevUrl = URL.createObjectURL(file)
+      setPreviewURL(prevUrl)
+    }
+  }
+
+  return (
+    <Dialog open={isVideoUploaded} onOpenChange={setIsVideoUploaded}>
+      <DialogTrigger asChild>
+        <Button variant="outline" onClick={() => setIsVideoUploaded(true)} className="text-black">
+          <Upload className="mr-2 h-4 w-4 " color="#000" />
+          Upload
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[800px]">
+        <DialogHeader>
+          <DialogTitle>Upload Video</DialogTitle>
+          <DialogDescription>
+            Share your video with the world. Add details and customize your video settings.
+          </DialogDescription>
+        </DialogHeader>
+        {!isVideoSelected ? (
+          <div className="flex flex-col items-center justify-center p-12">
+            <FileUpload className="w-12 h-12 mb-4 text-muted-foreground" />
+            <h2 className="text-xl font-semibold mb-2">Drag and drop video files to upload</h2>
+            <p className="text-sm text-muted-foreground mb-4">Your videos will be private until you publish them.</p>
+            <input
+              type="file"
+              ref={selectVideoRef}
+              accept="video/*"
+              onChange={handleFileSelect}
+              style={{ display: "none" }}
+            />
+            <Button onClick={() => selectVideoRef.current?.click()}>
+              Select Files
+            </Button>
+          </div>
+        ) : (
+          <VideoDetails
+            prevUrl={previewURL}
+            selectedVideo={selectedVideo}
+            name={name}
+            avatarUrl={avatarUrl}
+            channelId={channelId}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
