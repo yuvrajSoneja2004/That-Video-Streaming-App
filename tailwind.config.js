@@ -6,6 +6,7 @@ export default {
   	extend: {
   		colors: {
   			primaryDark: '#0F0F0F',
+			primaryLight: '#FAFAFA',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -54,8 +55,5 @@ export default {
   		}
   	}
   },
-  daisyui: {
-    themes: false,
-  },
-  plugins: [require("daisyui"), require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate")],
 };

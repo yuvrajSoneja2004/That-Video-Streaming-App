@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { useQueries } from "react-query"
+import { useMutation, useQueries } from "react-query"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/Avatar"
@@ -13,6 +13,7 @@ import {
   Share2,
   MoreVertical,
   MessageCircle,
+  Heart,
 } from "lucide-react"
 import { fetchVideoMetaData } from "../helpers/video/fetchVideoMetaData"
 import { fetchUpNextSuggestions } from "../helpers/video/fetchUpNextSuggestions"
@@ -22,12 +23,18 @@ import CommentSection from "../components/CommentSection"
 import CustomVideoPlayer from "../components/CustomPlayer"
 import UpNextVideoCard from "../components/UpNextVideoCard"
 import { useGlobalState } from "@/states/global"
+import { ShareModal } from "@/components/models/ShareModal"
+import { axiosInstance } from "@/utils/axiosInstance"
+import { useAuthState } from "react-firebase-hooks/auth"
+import { auth } from "@/utils/firebase"
 
 export default function SingleVideoPage() {
   const [isSubscribed, setIsSubscribed] = useState(false)
   const { videoId } = useParams()
-  const {setShowSidebar} = useGlobalState()
-  
+  const [user] = useAuthState(auth);
+  const { setShowSidebar } = useGlobalState()
+  const [isLiked , setIsLiked] = useState<boolean>(false);
+
   const queryResults = useQueries([
     {
       queryKey: ["videoMetadata", videoId],
@@ -43,13 +50,57 @@ export default function SingleVideoPage() {
   const videoMetaData = videoMetaDataInfo.data
   const channelInfo = videoMetaData?.channel
 
+  const likeVideoMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const response = await axiosInstance.post(`/video/likeVideo?eventType=${payload.eventType || "likeVideo"}`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Video liked successfully!");
+      // Optionally refetch or update video metadata
+      console.log(data , 'dard hi dard');
+      setIsLiked(data?.liked)
+      
+    },
+    onError: (error) => {
+      console.error("Failed to like video", error);
+      console.log(videoMetaData , 'dard hi dard');
+
+    },
+  });
+
+  const handleLike = async () => {
+    try {
+      // Optimistically update the like state
+      setIsLiked((prev) => !prev);
   
+      // Send the mutation request
+      likeVideoMutation.mutate(
+        { userId: user?.uid, videoId: videoMetaData?.videoId, eventType: "likeVideo" },
+        {
+          onError: (error) => {
+            console.error("Error liking the video:", error);
+  
+            // Revert the optimistic update if the mutation fails
+            setIsLiked((prev) => !prev);
+          },
+          onSuccess: (data) => {
+            console.log("Mutation successful:", data);
 
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error handling like operation:", error);
+    }
+  };
+  
   useEffect(() => {
-    setShowSidebar(false)
-
-    return () => setShowSidebar(true)
-  } , [])
+    setShowSidebar(false);
+    likeVideoMutation.mutate({ userId: user?.uid, videoId: videoMetaData?.videoId, eventType: "checkAlreadyLiked" });
+  
+    return () => setShowSidebar(true);
+  }, [user?.uid, videoMetaData?.videoId]);
   if (videoMetaDataInfo.isLoading || videoSuggestionsInfo?.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -71,11 +122,11 @@ export default function SingleVideoPage() {
             {/* Video Info */}
             <div className="space-y-4">
               <h1 className="text-xl font-semibold">{videoMetaData?.title}</h1>
-              
+
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-10 w-10 object-fill">
-                    <AvatarImage src={channelInfo?.avatarUrl} alt={channelInfo?.name} className="object-fill"/>
+                    <AvatarImage src={channelInfo?.avatarUrl} alt={channelInfo?.name} className="object-fill" />
                     <AvatarFallback>{channelInfo?.name?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
@@ -93,20 +144,17 @@ export default function SingleVideoPage() {
 
                 <div className="flex items-center gap-2">
                   <div className="flex bg-gray-800 rounded-full">
-                    <Button variant="ghost" className="rounded-l-full">
-                      <ThumbsUp className="mr-2 h-4 w-4" />
+                    <Button variant="ghost" className="rounded-l-full" onClick={handleLike}>
+                      <Heart className="mr-2 h-4 w-4" fill={isLiked ? "#fff" : "transparant"}/>
                       {videoMetaData?.likes.length}K
                     </Button>
                     <Separator orientation="vertical" />
-                    <Button variant="ghost" className="rounded-r-full">
+                    {/* <Button variant="ghost" className="rounded-r-full">
                       <ThumbsDown className="mr-2 h-4 w-4" />
                       {videoMetaData?.dislikes.length}K
-                    </Button>
+                    </Button> */}
                   </div>
-                  <Button variant="secondary" className="rounded-full">
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Share
-                  </Button>
+                  <ShareModal />
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <MoreVertical className="h-5 w-5" />
                   </Button>

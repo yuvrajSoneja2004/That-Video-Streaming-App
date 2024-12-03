@@ -1,4 +1,5 @@
 import Routing from "./Routing";
+import { ThemeProvider } from "./components/ThemeProvider";
 import { THEME } from "./constants/theme";
 import { QueryClient, QueryClientProvider } from "react-query";
 
@@ -51,6 +52,7 @@ function App() {
   const queryClient = new QueryClient();
 
   return (
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <QueryClientProvider client={queryClient} contextSharing={true}>
       <div style={{ background: THEME.dark.background }}>
         {/* {user ? (
@@ -66,6 +68,7 @@ function App() {
         <Routing />
       </div>
     </QueryClientProvider>
+     </ThemeProvider>
   );
 }
 

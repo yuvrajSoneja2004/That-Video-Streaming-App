@@ -77,8 +77,8 @@ function VideoCard({ videoInfo, isStatic }: Props) {
         </Avatar>
 
         <div className="flex flex-col flex-grow min-w-0">
-          <p className="text-md font-bold truncate text-white">{title}</p>
-          <p className="text-sm truncate text-gray-400 my-1">
+          <p className="text-md font-bold truncate text-primaryDark dark:text-primaryLight">{title}</p>
+          <p className="text-sm truncate text-gray-700 dark:text-gray-400 my-1">
             {channel?.name}
           </p>
           <p className="text-sm text-gray-400 flex items-center">

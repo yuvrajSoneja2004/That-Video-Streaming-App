@@ -15,6 +15,8 @@ import { auth } from "@/utils/firebase"
 import { useUserStore } from "@/states/user"
 import SearchBar from "./SearchBar"
 import { Link } from "react-router-dom"
+import { ModeToggle } from "./ThemeToggle"
+// import { ModeToggle } from "./ThemeToggle"
 
 interface NavbarProps {
   onMenuClick: () => void
@@ -39,8 +41,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   }))
 
   return (
-    <header className="sticky top-0 z-10 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60 border-b border-gray-800">
-      <div className="flex items-center justify-between gap-4 p-4">
+    <header className="sticky top-0 z-10  dark:bg-primaryDark  backdrop-blur supports-[backdrop-filter]:bg-black/60 border-b border-gray-800">
+      <div className="flex items-center bg-primaryLight dark:bg-primaryDark justify-between gap-4 p-4">
         <Button 
           variant="ghost" 
           size="icon" 
@@ -53,9 +55,10 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         <SearchBar />
 
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost">
+          {/* <Button size="icon" variant="ghost">
             <Plus className="h-5 w-5" />
-          </Button>
+          </Button> */}
+          <ModeToggle />
           <Button size="icon" variant="ghost">
             <Bell className="h-5 w-5" />
           </Button>
@@ -93,13 +96,13 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         </div>
       </div>
 
-      <ScrollArea className="w-full whitespace-nowrap border-t border-gray-800">
+      <ScrollArea className="w-full whitespace-nowrap border-t border-gray-100 dark:border-gray-800 dark:bg-primaryDark bg-primaryLight">
         <div className="flex p-4 gap-2">
           {categories.map((category) => (
             <Button
               key={category}
               variant="secondary"
-              className="rounded-full bg-gray-800 hover:bg-gray-700 text-white"
+              className="rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-700  text-primaryDark dark:text-white"
             >
               {category}
             </Button>

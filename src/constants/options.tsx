@@ -15,7 +15,7 @@ export const VIDEO_PLAYER_OPTIONS = [
     slug: "playspeed",
     title: "Playback Speed",
     icon: <PiSignOut size={20} />,
-    speedList: [0.75 , 0.5 , 0.25, 1 , 1.25 , 1.50 , 1.75 , 2] 
+    speedList: [0.75 , 0.5 , 0.25, 1 , 1.25 , 1.50 , 1.75 , 2, 5] 
   },
   {
     slug: 'quality',

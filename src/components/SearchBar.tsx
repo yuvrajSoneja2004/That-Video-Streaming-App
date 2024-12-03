@@ -73,7 +73,7 @@ const SearchBar: React.FC<SearchBarProps> = () => {
           </Button>
         </div>
         <Button size="icon" variant="ghost">
-          <Mic className="h-5 w-5" />
+          <Mic className="h-5 w-5 text-primaryDark dark:text-primaryLight" />
         </Button>
       </form>
       {isShowSuggestions && (
