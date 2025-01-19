@@ -19,6 +19,12 @@ interface VideoSchema {
     id: number;
     avatarUrl: string;
     name: string;
+    createdBy: string;
+    user: {
+      watchedVideosDurations: {
+        [key: string]: number;
+      };
+    };
   };
 }
 
@@ -27,7 +33,7 @@ interface Props {
   isStatic?: boolean;
 }
 
-function VideoCard({ videoInfo, isStatic }: Props) {
+function VideoCard({ videoInfo, isStatic, durations }: Props) {
   const {
     title,
     thumbnailUrl: thumbnail,
@@ -35,12 +41,20 @@ function VideoCard({ videoInfo, isStatic }: Props) {
     avatarUrl: localAvatar,
     previewGif,
     createdAt,
-    creator,
     videoUrl,
     channel,
   } = videoInfo;
 
   const [isHovered, setIsHovered] = useState(false);
+
+  console.log("chal koi na", channel?.user?.watchedVideosDurations[videoUrl]);
+  console.log("whole obj", channel?.user);
+  console.log(
+    "chal obj",
+    durations?.pages[0]?.userWatchedDurations?.watchedVideosDurations[videoUrl]
+  );
+  // dynamicID ff7da852-b4fe-437a-95f9-e5817739ad82
+  //videoID    ff7da852-b4fe-437a-95f9-e5817739ad82
 
   return (
     <Link
@@ -51,17 +65,30 @@ function VideoCard({ videoInfo, isStatic }: Props) {
     >
       <div className="w-full sm:max-w-[330.9px] aspect-video">
         {!isStatic ? (
-          <img
-            src={
-              isStatic
-                ? "/video-placeholder.jpg"
-                : isHovered && previewGif
-                ? previewGif
-                : thumbnail
-            }
-            alt="Video"
-            className="rounded-lg w-full h-full object-cover"
-          />
+          <>
+            <img
+              src={
+                isStatic
+                  ? "/video-placeholder.jpg"
+                  : isHovered && previewGif
+                  ? previewGif
+                  : thumbnail
+              }
+              alt="Video"
+              className="rounded-lg w-full h-full object-cover"
+            />
+            <div
+              className="bg-red-500 h-1"
+              style={{
+                width: `${Math.round(
+                  (channel.user &&
+                    durations?.pages[0]?.userWatchedDurations
+                      ?.watchedVideosDurations[videoUrl]) ||
+                    0
+                )}%`,
+              }}
+            ></div>
+          </>
         ) : (
           <img
             src={thumbnail ? thumbnail : "/video-placeholder.jpg"}
@@ -72,12 +99,16 @@ function VideoCard({ videoInfo, isStatic }: Props) {
       </div>
       <div className="flex items-start gap-3 mt-3">
         <Avatar className="w-9 h-9">
-          <AvatarImage src={isStatic ? localAvatar : channel?.avatarUrl || ""} />
+          <AvatarImage
+            src={isStatic ? localAvatar : channel?.avatarUrl || ""}
+          />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
 
         <div className="flex flex-col flex-grow min-w-0">
-          <p className="text-md font-bold truncate text-primaryDark dark:text-primaryLight">{title}</p>
+          <p className="text-md font-bold truncate text-primaryDark dark:text-primaryLight">
+            {title}
+          </p>
           <p className="text-sm truncate text-gray-700 dark:text-gray-400 my-1">
             {channel?.name}
           </p>

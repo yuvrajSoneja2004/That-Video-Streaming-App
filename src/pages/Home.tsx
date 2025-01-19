@@ -3,6 +3,7 @@ import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 import VideoCard from "../components/VideoCard";
 import { fetchVideos } from "../helpers/fetchVideos";
+import { useUserStore } from "@/states/user";
 
 // Define interfaces
 interface Video {
@@ -20,14 +21,27 @@ const VIDEOS_PER_PAGE = 8;
 function Home() {
   // Create ref for intersection observer
   const { ref, inView } = useInView();
-
+  const { userInfo } = useUserStore();
   // Modified fetch function to handle pagination
   const fetchVideoPage = async ({ pageParam = 0 }): Promise<PageData> => {
-    const response = await fetchVideos(pageParam, VIDEOS_PER_PAGE);
-    return {
-      videos: response.videos,
-      nextCursor: response.hasMore ? String(pageParam + 1) : null,
-    };
+    if (userInfo?.userId) {
+      const response = await fetchVideos(
+        pageParam,
+        VIDEOS_PER_PAGE,
+        userInfo.userId
+      );
+      return {
+        userWatchedDurations: response.userWatchedDurations,
+        videos: response.videos,
+        nextCursor: response.hasMore ? String(pageParam + 1) : null,
+      };
+    } else {
+      return {
+        userWatchedDurations: {},
+        videos: [],
+        nextCursor: null,
+      };
+    }
   };
 
   const {
@@ -38,7 +52,7 @@ function Home() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery(["videos"], fetchVideoPage, {
+  } = useInfiniteQuery(["videos", userInfo?.userId], fetchVideoPage, {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     refetchOnWindowFocus: false,
   });
@@ -61,7 +75,7 @@ function Home() {
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 place-items-center ">
         {data?.pages.map((page) =>
           page.videos.map((video, index) => (
-            <VideoCard key={video.id} videoInfo={video} />
+            <VideoCard key={video.id} videoInfo={video} durations={data} />
           ))
         )}
       </div>

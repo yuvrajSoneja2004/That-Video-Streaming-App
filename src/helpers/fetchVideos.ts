@@ -14,19 +14,23 @@ interface VideoResponse {
   videos: Video[];
   totalCount: number;
   hasMore: boolean;
+  userWatchedDurations: { [key: string]: number };
 }
 
 export const fetchVideos = async (
   page: number = 0,
-  limit: number = 8
+  limit: number = 8,
+  userId: number = 0
 ): Promise<VideoResponse> => {
   try {
+    console.log(" 🔴why", userId);
     const { data } = await axiosInstance.post<VideoResponse>(
       "/video/getVideos",
       {
         params: {
           page,
           limit,
+          userId,
         },
       }
     );
@@ -35,6 +39,7 @@ export const fetchVideos = async (
       videos: data.videos,
       totalCount: data.totalCount,
       hasMore: data.hasMore,
+      userWatchedDurations: data.userWatchedDurations,
     };
   } catch (error) {
     console.error("Error fetching videos info:", error);

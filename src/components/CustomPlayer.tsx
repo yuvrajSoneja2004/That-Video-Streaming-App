@@ -26,6 +26,10 @@ import { VIDEO_PLAYER_OPTIONS } from "../constants/options";
 import { useParams } from "react-router-dom";
 import { Expand, Pause, PictureInPicture, Play, RectangleHorizontal, Settings, Shrink, SkipBack, SkipForward, Volume2, VolumeOff } from "lucide-react";
 import ProgressBar from "./video/ProgressBar";
+import { useSingleVideoState } from "@/states/video";
+import { useMutation } from "react-query";
+import { updateVideoDurationHelper } from "@/helpers/video/updateVideoDuration";
+import { useUserStore } from "@/states/user";
 
 type BitrateType = {
   width: number;
@@ -47,7 +51,31 @@ const CustomVideoPlayer = ({ bitrates }) => {
   const containerRef = useRef<Element | HTMLDivElement>(null);
   const settingsRef = useRef<HTMLButtonElement>(null);
   const bitrateRef = useRef(null);
+  const isUnmounting = useRef(false);
   const videoUrlId = useParams<string>();
+  const { setWatchedDuration, logWatchDurations, getSingleVideoDuration } =
+    useSingleVideoState();
+  const { userInfo } = useUserStore();
+  const { mutate: updateVideoDurationMutate } = useMutation(
+    async (duration: number) => {
+      if (!videoUrlId?.videoId) {
+        throw new Error("Video ID is required to update video duration");
+      }
+      return updateVideoDurationHelper(
+        videoUrlId.videoId,
+        userInfo?.userId,
+        duration
+      );
+    },
+    {
+      onSuccess: (data) => {
+        console.log("Successfully updated video duration:", data);
+      },
+      onError: (error) => {
+        console.error("Error updating video duration:", userInfo);
+      },
+    }
+  );
 
   // const menuVariants = {
   //   enter: (direction) => ({
@@ -178,6 +206,10 @@ const CustomVideoPlayer = ({ bitrates }) => {
   //     dispatch({ type: "SET_VIDEO_BITRATES", payload: bitrates });
   //   }
   // };
+
+  const updateVideoDuration = async () => {
+    updateVideoDurationMutate(getSingleVideoDuration(videoUrlId?.videoId));
+  };
   useEffect(() => {
     if (screenfull.isEnabled) {
       const handleFullscreenChange = () => {
@@ -215,6 +247,34 @@ const CustomVideoPlayer = ({ bitrates }) => {
     dispatch({ type: "PLAY_VIDEO", payload: videoUrlId?.videoId });
     dispatch({ type: "HANDLE_PLAY_PAUSE", payload: true });
   }, [videoUrlId?.videoId]);
+
+  useEffect(() => {
+    console.log(
+      "State on mount/update:",
+      (state.currentTime / state.duration) * 100
+    );
+    setWatchedDuration(
+      videoUrlId?.videoId,
+      (state.currentTime / state.duration) * 100
+    );
+
+    return () => {
+      // This cleanup runs for state.currentTime changes but not during unmount
+      if (!isUnmounting.current) {
+        console.log("Cleanup for state.currentTime update.");
+      }
+    };
+  }, [state.currentTime]); // This effect responds to state.currentTime changes
+
+  useEffect(() => {
+    // Detect when the component is unmounting
+    return () => {
+      isUnmounting.current = true;
+      console.log("State on unmount: 💀", state.currentTime);
+      updateVideoDuration();
+      logWatchDurations();
+    };
+  }, []); // This effect runs only during unmount
 
   const VideoOptions = ({
     isOptionsOpen,
@@ -367,15 +427,15 @@ const CustomVideoPlayer = ({ bitrates }) => {
           className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 mb-4"
         /> */}
         <ProgressBar
-  duration={state.duration}
-  currentTime={state.currentTime}
-  onSeek={handleSeek}
-/>
+          duration={state.duration}
+          currentTime={state.currentTime}
+          onSeek={handleSeek}
+        />
         <div className="flex items-center justify-between text-white relative">
           <div className="flex gap-5 w-full">
             <button>
               {/* <IoIosSkipBackward size={ICON_SIZE} /> */}
-              <SkipBack size={ICON_SIZE}/>
+              <SkipBack size={ICON_SIZE} />
             </button>
             <button onClick={handlePlayPause}>
               {state.playing ? (
