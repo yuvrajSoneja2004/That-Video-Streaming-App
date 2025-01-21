@@ -2,6 +2,7 @@ import Routing from "./Routing";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { THEME } from "./constants/theme";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 function App() {
   // const [user, setUser] = useState(null);
@@ -53,9 +54,9 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-    <QueryClientProvider client={queryClient} contextSharing={true}>
-      <div style={{ background: THEME.dark.background }}>
-        {/* {user ? (
+      <QueryClientProvider client={queryClient} contextSharing={true}>
+        <div style={{ background: THEME.dark.background }}>
+          {/* {user ? (
         <div>
           <h1>Welcome, {user.displayName}!</h1>
           <img src={user.photoURL} alt="Profile" />
@@ -65,10 +66,10 @@ function App() {
       ) : (
         <button onClick={signInWithGoogle}>Sign In with Google</button>
       )} */}
-        <Routing />
-      </div>
-    </QueryClientProvider>
-     </ThemeProvider>
+          <Routing />
+        </div>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

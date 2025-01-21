@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 import VideoCard from "../components/VideoCard";
 import { fetchVideos } from "../helpers/fetchVideos";
 import { useUserStore } from "@/states/user";
+import { useGlobalState } from "@/states/global";
 
 // Define interfaces
 interface Video {
@@ -22,7 +23,10 @@ function Home() {
   // Create ref for intersection observer
   const { ref, inView } = useInView();
   const { userInfo } = useUserStore();
+  const { loadingBarState, setLoadingBarState } = useGlobalState();
   // Modified fetch function to handle pagination
+
+  // setLoadingBarState(70);
   const fetchVideoPage = async ({ pageParam = 0 }): Promise<PageData> => {
     if (userInfo?.userId) {
       const response = await fetchVideos(
@@ -63,6 +67,10 @@ function Home() {
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    setLoadingBarState(100);
+  }, []);
 
   if (isError) {
     return (

@@ -13,6 +13,7 @@ import { AuthWrapper } from "./wrappers/AuthCheck";
 import SearchResults from "./pages/SearchResults";
 import SingleVideoPage from "./pages/SingleVideoPage";
 import TestHome from "./testingComps/TestHomePage";
+import { UserHistoryPage } from "./pages/UserHistoryPage";
 // Import channel page components
 
 function Routing() {
@@ -21,27 +22,27 @@ function Routing() {
       <AuthWrapper>
         <div className="flex flex-col min-h-screen">
           {/* <Navbar /> */}
-        <TestHome>
-        <div className="flex-grow">
-            <Routes>
-              <Route path="/" element={<RootLayout />}>
-                <Route index element={<Home />} />
-              </Route>
-              <Route path="/channel/:channelId" element={<ChannelLayout />}>
-                <Route index element={<ChannelHome />} />
-                <Route path="videos" element={<ChannelVideos />} />
-                <Route path="shorts" element={<ChannelShorts />} />
-                <Route path="playlists" element={<ChannelPlaylists />} />
-                <Route path="community" element={<ChannelCommunity />} />
-                <Route path="about" element={<ChannelAbout />} />
-              </Route>
-              <Route path="/results" element={<SearchResults />} />
-              <Route path="/watch/:videoId" element={<SingleVideoPage />} />
-              <Route path="/uiTest" element={<TestHome />} />
-
-            </Routes>
-          </div>
-        </TestHome>
+          <TestHome>
+            <div className="flex-grow">
+              <Routes>
+                <Route path="/" element={<RootLayout />}>
+                  <Route index element={<Home />} />
+                </Route>
+                <Route path="/channel/:channelId" element={<ChannelLayout />}>
+                  <Route index element={<ChannelHome />} />
+                  <Route path="videos" element={<ChannelVideos />} />
+                  <Route path="shorts" element={<ChannelShorts />} />
+                  <Route path="playlists" element={<ChannelPlaylists />} />
+                  <Route path="community" element={<ChannelCommunity />} />
+                  <Route path="about" element={<ChannelAbout />} />
+                </Route>
+                <Route path="/results" element={<SearchResults />} />
+                <Route path="/watch/:videoId" element={<SingleVideoPage />} />
+                <Route path="/uiTest" element={<TestHome />} />
+                <Route path="/history" element={<UserHistoryPage />} />
+              </Routes>
+            </div>
+          </TestHome>
         </div>
       </AuthWrapper>
     </Router>

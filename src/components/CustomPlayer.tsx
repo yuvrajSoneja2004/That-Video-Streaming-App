@@ -23,13 +23,26 @@ import {
 } from "../reducers/videoPlayerReducer";
 import { formatTime } from "../utils/formatTime";
 import { VIDEO_PLAYER_OPTIONS } from "../constants/options";
-import { useParams } from "react-router-dom";
-import { Expand, Pause, PictureInPicture, Play, RectangleHorizontal, Settings, Shrink, SkipBack, SkipForward, Volume2, VolumeOff } from "lucide-react";
+import { useParams, useSearchParams } from "react-router-dom";
+import {
+  Expand,
+  Pause,
+  PictureInPicture,
+  Play,
+  RectangleHorizontal,
+  Settings,
+  Shrink,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeOff,
+} from "lucide-react";
 import ProgressBar from "./video/ProgressBar";
 import { useSingleVideoState } from "@/states/video";
 import { useMutation } from "react-query";
 import { updateVideoDurationHelper } from "@/helpers/video/updateVideoDuration";
 import { useUserStore } from "@/states/user";
+import { updateUserHistory } from "@/helpers/updateUserHistory";
 
 type BitrateType = {
   width: number;
@@ -55,7 +68,11 @@ const CustomVideoPlayer = ({ bitrates }) => {
   const videoUrlId = useParams<string>();
   const { setWatchedDuration, logWatchDurations, getSingleVideoDuration } =
     useSingleVideoState();
+  const [hasDone, setHasDOne] = useState(false);
   const { userInfo } = useUserStore();
+  const [query] = useSearchParams();
+  const continueDuration = parseInt(query.get("t") || "0");
+
   const { mutate: updateVideoDurationMutate } = useMutation(
     async (duration: number) => {
       if (!videoUrlId?.videoId) {
@@ -72,7 +89,27 @@ const CustomVideoPlayer = ({ bitrates }) => {
         console.log("Successfully updated video duration:", data);
       },
       onError: (error) => {
-        console.error("Error updating video duration:", userInfo);
+        console.error("Error updating video duration:", error);
+      },
+    }
+  );
+
+  const { mutate: addToUserHistory } = useMutation(
+    async () => {
+      return updateUserHistory(
+        {
+          videoId: videoUrlId?.videoId,
+          watchedAt: new Date().toISOString(),
+        },
+        userInfo?.userId
+      );
+    },
+    {
+      onSuccess: (data) => {
+        console.log("Successfully updated user's history:", data);
+      },
+      onError: (error) => {
+        console.error("Error updating user's history:", error);
       },
     }
   );
@@ -145,10 +182,18 @@ const CustomVideoPlayer = ({ bitrates }) => {
   };
 
   const handleProgress = (progressSoFar: { playedSeconds: number }) => {
+    // if (continueDuration !== 0) {
+    //   // playerRef.current?.seekTo(continueDuration, "seconds");
+
+    //   dispatch({ type: "HANDLE_PROGRESS", payload: continueDuration });
+    //   setHasDOne(true);
+    // }
+
     dispatch({
       type: "HANDLE_PROGRESS",
       payload: progressSoFar.playedSeconds,
     });
+    setHasDOne(false);
   };
 
   const handleSeek = (e: ChangeEvent<HTMLInputElement>) => {
@@ -209,6 +254,7 @@ const CustomVideoPlayer = ({ bitrates }) => {
 
   const updateVideoDuration = async () => {
     updateVideoDurationMutate(getSingleVideoDuration(videoUrlId?.videoId));
+    addToUserHistory();
   };
   useEffect(() => {
     if (screenfull.isEnabled) {
@@ -246,13 +292,13 @@ const CustomVideoPlayer = ({ bitrates }) => {
   useEffect(() => {
     dispatch({ type: "PLAY_VIDEO", payload: videoUrlId?.videoId });
     dispatch({ type: "HANDLE_PLAY_PAUSE", payload: true });
+    if (continueDuration !== 0) {
+      playerRef.current?.seekTo(continueDuration, "seconds");
+      dispatch({ type: "HANDLE_PROGRESS", payload: continueDuration });
+    }
   }, [videoUrlId?.videoId]);
 
   useEffect(() => {
-    console.log(
-      "State on mount/update:",
-      (state.currentTime / state.duration) * 100
-    );
     setWatchedDuration(
       videoUrlId?.videoId,
       (state.currentTime / state.duration) * 100
@@ -261,7 +307,6 @@ const CustomVideoPlayer = ({ bitrates }) => {
     return () => {
       // This cleanup runs for state.currentTime changes but not during unmount
       if (!isUnmounting.current) {
-        console.log("Cleanup for state.currentTime update.");
       }
     };
   }, [state.currentTime]); // This effect responds to state.currentTime changes
@@ -270,7 +315,6 @@ const CustomVideoPlayer = ({ bitrates }) => {
     // Detect when the component is unmounting
     return () => {
       isUnmounting.current = true;
-      console.log("State on unmount: 💀", state.currentTime);
       updateVideoDuration();
       logWatchDurations();
     };

@@ -23,7 +23,6 @@ export const fetchVideos = async (
   userId: number = 0
 ): Promise<VideoResponse> => {
   try {
-    console.log(" 🔴why", userId);
     const { data } = await axiosInstance.post<VideoResponse>(
       "/video/getVideos",
       {

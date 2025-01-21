@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { formatViews } from "../utils/formatViews";
 import RelativeTime from "../utils/RelativeTime";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
+import { THEME } from "@/constants/theme";
 
 interface VideoSchema {
   id: string;
@@ -47,18 +48,18 @@ function VideoCard({ videoInfo, isStatic, durations }: Props) {
 
   const [isHovered, setIsHovered] = useState(false);
 
-  console.log("chal koi na", channel?.user?.watchedVideosDurations[videoUrl]);
-  console.log("whole obj", channel?.user);
-  console.log(
-    "chal obj",
-    durations?.pages[0]?.userWatchedDurations?.watchedVideosDurations[videoUrl]
-  );
+  // console.log("chal koi na", channel?.user?.watchedVideosDurations[videoUrl]);
+  // console.log("whole obj", channel?.user);
+  // console.log(
+  //   "chal obj",
+  //   durations?.pages[0]?.userWatchedDurations?.watchedVideosDurations[videoUrl]
+  // );
   // dynamicID ff7da852-b4fe-437a-95f9-e5817739ad82
   //videoID    ff7da852-b4fe-437a-95f9-e5817739ad82
 
   return (
     <Link
-      to={`/watch/${videoUrl}`}
+      to={`/watch/${videoUrl}?t=${durations?.pages[0]?.userWatchedDurations?.watchedVideosDurations[videoUrl]}`}
       className="w-full sm:max-w-[330.9px] block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -78,7 +79,7 @@ function VideoCard({ videoInfo, isStatic, durations }: Props) {
               className="rounded-lg w-full h-full object-cover"
             />
             <div
-              className="bg-red-500 h-1"
+              className="h-1"
               style={{
                 width: `${Math.round(
                   (channel.user &&
@@ -86,6 +87,7 @@ function VideoCard({ videoInfo, isStatic, durations }: Props) {
                       ?.watchedVideosDurations[videoUrl]) ||
                     0
                 )}%`,
+                backgroundColor: THEME.primary,
               }}
             ></div>
           </>
