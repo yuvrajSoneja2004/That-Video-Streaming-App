@@ -72,15 +72,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <History className="h-5 w-5" /> History
                 </Button>
               </Link>
+              <Link to={"/watchLater"}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 text-black dark:text-white"
+                >
+                  <Clock className="h-5 w-5" /> Watch Later
+                </Button>
+              </Link>
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-2 text-black dark:text-white"
-              >
-                <Clock className="h-5 w-5" /> Watch Later
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-2 text-black dark:text-white"
+                className="w-full justify-start gap-2 text-black dark:text-white m-0"
               >
                 <Heart className="h-5 w-5" /> Liked Videos
               </Button>

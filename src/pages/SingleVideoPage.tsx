@@ -14,26 +14,39 @@ import {
   MoreVertical,
   MessageCircle,
   Heart,
-} from "lucide-react"
-import { fetchVideoMetaData } from "../helpers/video/fetchVideoMetaData"
-import { fetchUpNextSuggestions } from "../helpers/video/fetchUpNextSuggestions"
-import { formatViews } from "../utils/formatViews"
-import RelativeTime from "../utils/RelativeTime"
-import CommentSection from "../components/CommentSection"
-import CustomVideoPlayer from "../components/CustomPlayer"
-import UpNextVideoCard from "../components/UpNextVideoCard"
-import { useGlobalState } from "@/states/global"
-import { ShareModal } from "@/components/models/ShareModal"
-import { axiosInstance } from "@/utils/axiosInstance"
-import { useAuthState } from "react-firebase-hooks/auth"
-import { auth } from "@/utils/firebase"
+  Bookmark,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { fetchVideoMetaData } from "../helpers/video/fetchVideoMetaData";
+import { fetchUpNextSuggestions } from "../helpers/video/fetchUpNextSuggestions";
+import { formatViews } from "../utils/formatViews";
+import RelativeTime from "../utils/RelativeTime";
+import CommentSection from "../components/CommentSection";
+import CustomVideoPlayer from "../components/CustomPlayer";
+import UpNextVideoCard from "../components/UpNextVideoCard";
+import { useGlobalState } from "@/states/global";
+import { ShareModal } from "@/components/models/ShareModal";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/utils/firebase";
+import { saveToWatchLaterHelper } from "@/helpers/saveToWatchLaterHelper";
+import { useUserStore } from "@/states/user";
 
 export default function SingleVideoPage() {
-  const [isSubscribed, setIsSubscribed] = useState(false)
-  const { videoId } = useParams()
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const { videoId } = useParams();
   const [user] = useAuthState(auth);
-  const { setShowSidebar } = useGlobalState()
-  const [isLiked , setIsLiked] = useState<boolean>(false);
+  const { setShowSidebar } = useGlobalState();
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const { userInfo } = useUserStore();
 
   const queryResults = useQueries([
     {
@@ -44,11 +57,11 @@ export default function SingleVideoPage() {
       queryKey: ["videoSuggestions", videoId],
       queryFn: () => fetchUpNextSuggestions(videoId),
     },
-  ])
+  ]);
 
-  const [videoMetaDataInfo, videoSuggestionsInfo] = queryResults
-  const videoMetaData = videoMetaDataInfo.data
-  const channelInfo = videoMetaData?.channel
+  const [videoMetaDataInfo, videoSuggestionsInfo] = queryResults;
+  const videoMetaData = videoMetaDataInfo.data;
+  const channelInfo = videoMetaData?.channel;
 
   const likeVideoMutation = useMutation({
     mutationFn: async (payload: any) => {
@@ -98,11 +111,28 @@ export default function SingleVideoPage() {
       console.error("Error handling like operation:", error);
     }
   };
-  
+
+  const { mutate } = useMutation(async () =>
+    saveToWatchLaterHelper(userInfo?.userId, {
+      videoId: videoId,
+      watchedAt: new Date(),
+    })
+  );
+
+  // ? Continue from here -
+  // TODO Summery: You were making saveToWatch later feature. Now its time to make that helper function. Backend routes and stuff are also ready. Just connect the helper function.
+  const saveToWatchLater = () => {
+    mutate();
+  };
+
   useEffect(() => {
     setShowSidebar(false);
-    likeVideoMutation.mutate({ userId: user?.uid, videoId: videoMetaData?.videoId, eventType: "checkAlreadyLiked" });
-  
+    likeVideoMutation.mutate({
+      userId: user?.uid,
+      videoId: videoMetaData?.videoId,
+      eventType: "checkAlreadyLiked",
+    });
+
     return () => setShowSidebar(true);
   }, [user?.uid, videoMetaData?.videoId]);
   if (videoMetaDataInfo.isLoading || videoSuggestionsInfo?.isLoading) {
@@ -110,7 +140,7 @@ export default function SingleVideoPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-pulse text-xl text-white">Loading...</div>
       </div>
-    )
+    );
   }
   return (
     <div className="min-h-screen bg-black text-white pt-16">
@@ -130,16 +160,26 @@ export default function SingleVideoPage() {
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-10 w-10 object-fill">
-                    <AvatarImage src={channelInfo?.avatarUrl} alt={channelInfo?.name} className="object-fill" />
+                    <AvatarImage
+                      src={channelInfo?.avatarUrl}
+                      alt={channelInfo?.name}
+                      className="object-fill"
+                    />
                     <AvatarFallback>{channelInfo?.name?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
                     <span className="font-semibold">{channelInfo?.name}</span>
-                    <span className="text-sm text-gray-400">{formatViews(videoMetaData?.views)} subscribers</span>
+                    <span className="text-sm text-gray-400">
+                      {formatViews(videoMetaData?.views)} subscribers
+                    </span>
                   </div>
                   <Button
                     variant={isSubscribed ? "outline" : "default"}
-                    className={isSubscribed ? "bg-gray-800" : "bg-yellow-500 hover:bg-red-700"}
+                    className={
+                      isSubscribed
+                        ? "bg-gray-800"
+                        : "bg-yellow-500 hover:bg-red-700"
+                    }
                     onClick={() => setIsSubscribed(!isSubscribed)}
                   >
                     {isSubscribed ? "Subscribed" : "Subscribe"}
@@ -148,8 +188,15 @@ export default function SingleVideoPage() {
 
                 <div className="flex items-center gap-2">
                   <div className="flex bg-gray-800 rounded-full">
-                    <Button variant="ghost" className="rounded-l-full" onClick={handleLike}>
-                      <Heart className="mr-2 h-4 w-4" fill={isLiked ? "#fff" : "transparant"}/>
+                    <Button
+                      variant="ghost"
+                      className="rounded-l-full"
+                      onClick={handleLike}
+                    >
+                      <Heart
+                        className="mr-2 h-4 w-4"
+                        fill={isLiked ? "#fff" : "transparant"}
+                      />
                       {videoMetaData?.likes.length}K
                     </Button>
                     <Separator orientation="vertical" />
@@ -159,9 +206,26 @@ export default function SingleVideoPage() {
                     </Button> */}
                   </div>
                   <ShareModal />
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full"
+                      >
+                        <MoreVertical className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuLabel
+                        className="flex gap-2 items-center justify-center cursor-pointer"
+                        onClick={saveToWatchLater}
+                      >
+                        <Bookmark size={15} /> Watch later
+                      </DropdownMenuLabel>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
 
@@ -169,9 +233,12 @@ export default function SingleVideoPage() {
               <Card className="bg-gray-900 border-gray-800">
                 <CardContent className="p-4">
                   <p className="text-sm text-gray-400 mb-2">
-                    {formatViews(videoMetaData?.views)} views • <RelativeTime createdAt={videoMetaData?.createdAt} />
+                    {formatViews(videoMetaData?.views)} views •{" "}
+                    <RelativeTime createdAt={videoMetaData?.createdAt} />
                   </p>
-                  <p className="text-sm whitespace-pre-line">{videoMetaData?.description}</p>
+                  <p className="text-sm whitespace-pre-line">
+                    {videoMetaData?.description}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -194,5 +261,5 @@ export default function SingleVideoPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

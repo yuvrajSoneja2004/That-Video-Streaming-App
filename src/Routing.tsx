@@ -14,6 +14,7 @@ import SearchResults from "./pages/SearchResults";
 import SingleVideoPage from "./pages/SingleVideoPage";
 import TestHome from "./testingComps/TestHomePage";
 import { UserHistoryPage } from "./pages/UserHistoryPage";
+import WatchLaterPage from "./pages/WatchLaterPage";
 // Import channel page components
 
 function Routing() {
@@ -40,6 +41,7 @@ function Routing() {
                 <Route path="/watch/:videoId" element={<SingleVideoPage />} />
                 <Route path="/uiTest" element={<TestHome />} />
                 <Route path="/history" element={<UserHistoryPage />} />
+                <Route path="/watchLater" element={<WatchLaterPage />} />
               </Routes>
             </div>
           </TestHome>
