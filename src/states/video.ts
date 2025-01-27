@@ -7,10 +7,10 @@ export const useSingleVideoState = create((set) => ({
       watchedDurations: { ...state.watchedDurations, [videoId]: watchState },
     })),
   logWatchDurations: () => {
-    console.log(
-      "Watched Durations:",
-      useSingleVideoState.getState().watchedDurations
-    );
+    // console.log(
+    //   "Watched Durations:",
+    //   useSingleVideoState.getState().watchedDurations
+    // );
   },
   getSingleVideoDuration: (videoId: string) => {
     const videoState = useSingleVideoState.getState();

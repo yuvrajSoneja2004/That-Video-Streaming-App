@@ -31,7 +31,8 @@ type PlayerAction =
   | { type: "HANDLE_OPTION_PRESS"; payload: string }
   | { type: "SET_VIDEO_BITRATES"; payload: Record<string, string | number> }
   | { type: "HANDLE_QUALITY_CHANGE"; payload: string }
-  | { type: "PLAY_VIDEO"; payload: string };
+  | { type: "PLAY_VIDEO"; payload: string }
+  | { type: "RESET_STATE"; payload: string };
 
 // All necessary initial states of the video player
 export const playerInitialState: PlayerState = {
@@ -91,6 +92,23 @@ export const videoPlayerReducer = (
       return {
         ...state,
         currentBitrate: `${SERVER_BASE_URL}/video/videos/${action.payload.videoUrlId}/${action.payload.bitrate}p/playlist.m3u8`,
+      };
+    case "RESET_STATE":
+      return {
+        ...state,
+        currentBitrate: "",
+        playing: false,
+        playbackRate: 1,
+        volume: 1,
+        muted: false,
+        controlsVisible: false,
+        isOptionsOpen: false,
+        showVolumeRange: false,
+        currentTime: 0,
+        duration: 0,
+        isFullscreen: false,
+        currentSelectedOption: "",
+        availableVideoBitrates: {},
       };
     default:
       return state;

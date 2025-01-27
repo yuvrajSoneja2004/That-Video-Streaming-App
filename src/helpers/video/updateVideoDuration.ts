@@ -9,7 +9,7 @@ export const updateVideoDurationHelper = async (
       `/video/updateVideoWatchedDuration/${userId}?videoId=${videoId}&duration=${duration}`
     );
 
-    console.log("chaska", data);
+    // console.log("chaska", data);
     return data;
   } catch (error) {
     console.error("Error creating user:", error);

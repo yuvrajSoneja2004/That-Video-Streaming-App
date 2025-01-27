@@ -52,20 +52,21 @@ export default function SingleVideoPage() {
 
   const likeVideoMutation = useMutation({
     mutationFn: async (payload: any) => {
-      const response = await axiosInstance.post(`/video/likeVideo?eventType=${payload.eventType || "likeVideo"}`, payload);
+      const response = await axiosInstance.post(
+        `/video/likeVideo?eventType=${payload.eventType || "likeVideo"}`,
+        payload
+      );
       return response.data;
     },
     onSuccess: (data) => {
-      console.log("Video liked successfully!");
+      // console.log("Video liked successfully!");
       // Optionally refetch or update video metadata
-      console.log(data , 'dard hi dard');
-      setIsLiked(data?.liked)
-      
+      // console.log(data , 'dard hi dard');
+      setIsLiked(data?.liked);
     },
     onError: (error) => {
       console.error("Failed to like video", error);
-      console.log(videoMetaData , 'dard hi dard');
-
+      // console.log(videoMetaData , 'dard hi dard');
     },
   });
 
@@ -73,20 +74,23 @@ export default function SingleVideoPage() {
     try {
       // Optimistically update the like state
       setIsLiked((prev) => !prev);
-  
+
       // Send the mutation request
       likeVideoMutation.mutate(
-        { userId: user?.uid, videoId: videoMetaData?.videoId, eventType: "likeVideo" },
+        {
+          userId: user?.uid,
+          videoId: videoMetaData?.videoId,
+          eventType: "likeVideo",
+        },
         {
           onError: (error) => {
             console.error("Error liking the video:", error);
-  
+
             // Revert the optimistic update if the mutation fails
             setIsLiked((prev) => !prev);
           },
           onSuccess: (data) => {
-            console.log("Mutation successful:", data);
-
+            // console.log("Mutation successful:", data);
           },
         }
       );

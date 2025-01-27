@@ -1,6 +1,17 @@
 import { Button } from "@/components/ui/button"
-import { Gamepad2, Home, Flame, Library, History, Clock, Heart, Settings } from 'lucide-react'
+import {
+  Gamepad2,
+  Home,
+  Flame,
+  Library,
+  History,
+  Clock,
+  Heart,
+  Settings,
+  Radio,
+} from "lucide-react";
 import SiteLogo from "../assets/site-logo.png";
+import { Link } from "react-router-dom";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -26,18 +37,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           <nav className="space-y-6 flex-grow dark:bg-primaryDark">
             <div className="space-y-2 dark:bg-primaryDark">
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-2 text-black dark:text-white"
-              >
-                <Home className="h-5 w-5" /> Home
-              </Button>
+              <Link to={"/"}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 text-black dark:text-white"
+                >
+                  <Home className="h-5 w-5" /> Home
+                </Button>
+              </Link>
 
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-2 text-black dark:text-white "
               >
-                <Flame className="h-5 w-5" /> Trending
+                <Radio className="h-5 w-5" /> Live
               </Button>
               <Button
                 variant="ghost"
@@ -51,12 +64,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <h3 className="text-sm font-semibold text-gray-400 px-3 dark:bg-primaryDark">
                 Library
               </h3>
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-2 text-black dark:text-white"
-              >
-                <History className="h-5 w-5" /> History
-              </Button>
+              <Link to={"/history"}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 text-black dark:text-white"
+                >
+                  <History className="h-5 w-5" /> History
+                </Button>
+              </Link>
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-2 text-black dark:text-white"

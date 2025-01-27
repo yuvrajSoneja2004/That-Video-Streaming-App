@@ -25,7 +25,7 @@ export const AuthWrapper = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!isInitialized) setIsInitialized(true);
-  }, [isInitialized, data]);
+  }, [data]);
 
   useEffect(() => {
     if (data) setUserInfo(data);

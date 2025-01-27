@@ -1,21 +1,7 @@
 import { useState, useRef, useEffect, useReducer, ChangeEvent } from "react";
 import ReactPlayer from "react-player";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  IoIosPause,
-  IoIosPlay,
-  IoIosSkipBackward,
-  IoIosSkipForward,
-  IoMdSettings,
-} from "react-icons/io";
-import {
-  IoContractOutline,
-  IoExpandOutline,
-  IoVolumeHigh,
-  IoVolumeMute,
-} from "react-icons/io5";
-import { BsPip } from "react-icons/bs";
-import { LuRectangleHorizontal } from "react-icons/lu";
+import { motion } from "framer-motion";
+import { IoMdSettings } from "react-icons/io";
 import screenfull from "screenfull";
 import {
   videoPlayerReducer,
@@ -43,11 +29,6 @@ import { useMutation } from "react-query";
 import { updateVideoDurationHelper } from "@/helpers/video/updateVideoDuration";
 import { useUserStore } from "@/states/user";
 import { updateUserHistory } from "@/helpers/updateUserHistory";
-
-type BitrateType = {
-  width: number;
-  url: Array<string>;
-};
 
 type ActiveMenuStates = "main" | "playspeed" | "quality";
 const CustomVideoPlayer = ({ bitrates }) => {
@@ -86,7 +67,7 @@ const CustomVideoPlayer = ({ bitrates }) => {
     },
     {
       onSuccess: (data) => {
-        console.log("Successfully updated video duration:", data);
+        // console.log("Successfully updated video duration:", data);
       },
       onError: (error) => {
         console.error("Error updating video duration:", error);
@@ -106,7 +87,7 @@ const CustomVideoPlayer = ({ bitrates }) => {
     },
     {
       onSuccess: (data) => {
-        console.log("Successfully updated user's history:", data);
+        // console.log("Successfully updated user's history:", data);
       },
       onError: (error) => {
         console.error("Error updating user's history:", error);
@@ -296,6 +277,11 @@ const CustomVideoPlayer = ({ bitrates }) => {
       playerRef.current?.seekTo(continueDuration, "seconds");
       dispatch({ type: "HANDLE_PROGRESS", payload: continueDuration });
     }
+
+    console.log(state);
+    return () => {
+      dispatch({ type: "RESET_STATE", payload: "" });
+    };
   }, [videoUrlId?.videoId]);
 
   useEffect(() => {
