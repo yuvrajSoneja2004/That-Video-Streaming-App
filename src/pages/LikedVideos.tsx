@@ -3,6 +3,7 @@ import { useUserStore } from "@/states/user";
 import { useEffect } from "react";
 import HistoryVideoCard from "@/components/HistoryVideoCard";
 import { fetchLikedVideos } from "@/helpers/fetchLikedVideos";
+import HistoryVideoCardSkeleton from "@/skeletons/HistoryVideoCardSkeleton";
 
 function LikedVideosPage() {
   const { userInfo } = useUserStore();
@@ -26,19 +27,21 @@ function LikedVideosPage() {
     }
   }, [userInfo, mutate]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
 
   return (
     <div className="divide-y divide-border">
-      {data?.likedVideos.map((item) => (
-        <HistoryVideoCard key={item.id} item={item} />
-      ))}
+      {/* Show skeleton loader while loading */}
+      {isLoading
+        ? Array.from({ length: 5 }).map((_, index) => (
+            <HistoryVideoCardSkeleton key={index} />
+          ))
+        : // Show actual liked videos data once loaded
+          data?.likedVideos.map((item) => (
+            <HistoryVideoCard key={item.id} item={item} />
+          ))}
     </div>
   );
 }

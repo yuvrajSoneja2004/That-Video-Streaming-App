@@ -30,7 +30,10 @@ const ChannelInfo: React.FC<ChannelInfoProps> = ({
   const [user] = useAuthState(auth);
   const [open, setOpen] = useState(false);
 
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    console.log(open);
+    return setOpen(true);
+  };
   const handleClose = () => setOpen(false);
   return (
     <div className="flex gap-4 mt-8">

@@ -3,6 +3,7 @@ import { fetchUserHistory } from "@/helpers/fetchUserHistory";
 import { useUserStore } from "@/states/user";
 import { useEffect } from "react";
 import HistoryVideoCard from "./HistoryVideoCard";
+import HistoryVideoCardSkeleton from "@/skeletons/HistoryVideoCardSkeleton";
 
 export function HistoryList() {
   const { userInfo } = useUserStore();
@@ -26,19 +27,21 @@ export function HistoryList() {
     }
   }, [userInfo]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
 
   return (
     <div className="divide-y divide-border">
-      {data?.watchHistory.map((item) => (
-        <HistoryVideoCard key={item.id} item={item} />
-      ))}
+      {/* Show skeleton loader while loading */}
+      {isLoading
+        ? Array.from({ length: 5 }).map((_, index) => (
+            <HistoryVideoCardSkeleton key={index} />
+          ))
+        : // Show actual history data once loaded
+          data?.watchHistory.map((item) => (
+            <HistoryVideoCard key={item.id} item={item} />
+          ))}
     </div>
   );
 }

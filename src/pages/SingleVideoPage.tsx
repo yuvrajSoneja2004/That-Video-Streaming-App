@@ -39,6 +39,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/utils/firebase";
 import { saveToWatchLaterHelper } from "@/helpers/saveToWatchLaterHelper";
 import { useUserStore } from "@/states/user";
+import SingleVideoPageSkeleton from "@/skeletons/pages/SingleVideoPageSkeleton";
 
 export default function SingleVideoPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -119,8 +120,6 @@ export default function SingleVideoPage() {
     })
   );
 
-  // ? Continue from here -
-  // TODO Summery: You were making saveToWatch later feature. Now its time to make that helper function. Backend routes and stuff are also ready. Just connect the helper function.
   const saveToWatchLater = () => {
     mutate();
   };
@@ -136,11 +135,7 @@ export default function SingleVideoPage() {
     return () => setShowSidebar(true);
   }, [user?.uid, videoMetaData?.videoId]);
   if (videoMetaDataInfo.isLoading || videoSuggestionsInfo?.isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-xl text-white">Loading...</div>
-      </div>
-    );
+    return <SingleVideoPageSkeleton />;
   }
   return (
     <div className="min-h-screen bg-black text-white pt-16">

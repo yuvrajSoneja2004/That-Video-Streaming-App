@@ -5,6 +5,7 @@ import VideoCard from "../components/VideoCard";
 import { fetchVideos } from "../helpers/fetchVideos";
 import { useUserStore } from "@/states/user";
 import { useGlobalState } from "@/states/global";
+import SkeletonCard from "@/skeletons/SkeletonVideoCard";
 
 // Define interfaces
 interface Video {
@@ -24,9 +25,7 @@ function Home() {
   const { ref, inView } = useInView();
   const { userInfo } = useUserStore();
   const { loadingBarState, setLoadingBarState } = useGlobalState();
-  // Modified fetch function to handle pagination
 
-  // setLoadingBarState(70);
   const fetchVideoPage = async ({ pageParam = 0 }): Promise<PageData> => {
     if (userInfo?.userId) {
       const response = await fetchVideos(
@@ -80,15 +79,28 @@ function Home() {
 
   return (
     <div className="p-7 bg-primaryLight dark:bg-primaryDark">
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 place-items-center ">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 place-items-center">
+        {/* Render skeleton cards during initial loading */}
+        {isLoading &&
+          Array.from({ length: VIDEOS_PER_PAGE }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))}
+
+        {/* Render actual video cards */}
         {data?.pages.map((page) =>
-          page.videos.map((video, index) => (
+          page.videos.map((video) => (
             <VideoCard key={video.id} videoInfo={video} durations={data} />
           ))
         )}
+
+        {/* Render skeleton cards while fetching the next page */}
+        {isFetchingNextPage &&
+          Array.from({ length: VIDEOS_PER_PAGE }).map((_, index) => (
+            <SkeletonCard key={`next-page-${index}`} />
+          ))}
       </div>
 
-      {/* Loading spinner */}
+      {/* Intersection observer target */}
       <div ref={ref} className="flex justify-center p-4 mt-4">
         {isFetchingNextPage ? (
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
@@ -96,13 +108,6 @@ function Home() {
           <div className="h-8" /> // Spacer for intersection observer
         ) : null}
       </div>
-
-      {/* Initial loading state */}
-      {isLoading && (
-        <div className="flex justify-center mt-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
-        </div>
-      )}
     </div>
   );
 }

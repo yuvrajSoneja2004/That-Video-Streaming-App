@@ -3,6 +3,7 @@ import { useUserStore } from "@/states/user";
 import { useEffect } from "react";
 import { fetchWatchLater } from "@/helpers/fetchWatchLater";
 import HistoryVideoCard from "@/components/HistoryVideoCard";
+import HistoryVideoCardSkeleton from "@/skeletons/HistoryVideoCardSkeleton";
 
 function WatchLaterPage() {
   const { userInfo } = useUserStore();
@@ -15,7 +16,7 @@ function WatchLaterPage() {
         console.log(data, "karda ni care");
       },
       onError: (error) => {
-        console.error("Failed to fetch user watchlater data:", error);
+        console.error("Failed to fetch user watch later data:", error);
       },
     }
   );
@@ -26,19 +27,19 @@ function WatchLaterPage() {
     }
   }, [userInfo]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
 
   return (
     <div className="divide-y divide-border">
-      {data?.map((item) => (
-        <HistoryVideoCard key={item.id} item={item} />
-      ))}
+      {/* Show skeleton loader while loading */}
+      {isLoading
+        ? Array.from({ length: 5 }).map((_, index) => (
+            <HistoryVideoCardSkeleton key={index} />
+          ))
+        : // Show actual watch later data once loaded
+          data?.map((item) => <HistoryVideoCard key={item.id} item={item} />)}
     </div>
   );
 }
