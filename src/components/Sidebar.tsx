@@ -80,12 +80,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <Clock className="h-5 w-5" /> Watch Later
                 </Button>
               </Link>
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-2 text-black dark:text-white m-0"
-              >
-                <Heart className="h-5 w-5" /> Liked Videos
-              </Button>
+              <Link to={"/likedVideos"}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 text-black dark:text-white m-0"
+                >
+                  <Heart className="h-5 w-5" /> Liked Videos
+                </Button>
+              </Link>
             </div>
 
             <div className="space-y-2 dark:bg-primaryDark">
