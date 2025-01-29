@@ -3,6 +3,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { THEME } from "./constants/theme";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   // const [user, setUser] = useState(null);
@@ -69,6 +70,7 @@ function App() {
           <Routing />
         </div>
       </QueryClientProvider>
+      <Toaster />
     </ThemeProvider>
   );
 }
