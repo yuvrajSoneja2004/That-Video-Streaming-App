@@ -15,12 +15,14 @@ import { useMutation, useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import { createComment } from "@/helpers/video/createComment";
 import { useUserStore } from "@/states/user";
-import { fetchComments } from "@/helpers/video/fetchComments";
+import { fetchComments } from "@/helpers/video/fetchComments"; // Add fetchReplies
 import { MoreVertical, ThumbsUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { set } from "date-fns";
 import RelativeTime from "@/utils/RelativeTime";
 import { replyToComment } from "@/helpers/video/replyToComment";
+import { fetchReplies } from "@/helpers/video/fetchReplies";
+import CommentCard from "./video/CommentCard";
 
 export default function CommentSection() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -30,6 +32,14 @@ export default function CommentSection() {
   const [sortBy, setSortBy] = useState<"top" | "newest">("top");
   const [openReplyId, setOpenReplyId] = useState<string | null>(null); // State to track which comment's reply box is open
   const [replyText, setReplyText] = useState<string>(""); // State to store reply text
+  const [replyCommentId, setReplyCommentId] = useState<string | null>(""); // State to store the comment ID for the reply
+  const [showReplies, setShowReplies] = useState<boolean>(false);
+  const [currentReplies, setCurrentReplies] = useState<any>([]);
+  // const [commentReplies]
+  const [expandedReplies, setExpandedReplies] = useState<{
+    [key: string]: boolean;
+  }>({}); // State to track expanded replies
+  const [replies, setReplies] = useState<{ [key: string]: any[] }>({}); // State to store replies for each comment
   const videoUrlId = useParams<string>();
   const { userInfo } = useUserStore();
   const { toast } = useToast();
@@ -41,11 +51,26 @@ export default function CommentSection() {
     error: commentsError,
   } = useQuery(
     ["comments", videoUrlId?.videoId], // Query key
-    () => fetchComments(videoUrlId?.videoId || ""), // Fetch function
+    () => fetchComments(videoUrlId?.videoId || "lol"), // Fetch function
     {
       enabled: !!videoUrlId?.videoId, // Only fetch if videoId is available
       onSuccess: (data) => {
         setCommentList(data.comments); // Update the comment list state with the fetched data
+      },
+    }
+  );
+
+  // Fetch replies for a specific comment
+  const { refetch: fetchRepliesForComment } = useQuery(
+    ["replies", replyCommentId], // Query key
+    () => fetchReplies(replyCommentId), // Fetch function
+    {
+      enabled: false, // Disable automatic fetching
+      onSuccess: (data) => {
+        setReplies((prev) => ({
+          ...prev,
+          [openReplyId || ""]: data.replies, // Store replies for the specific comment
+        }));
       },
     }
   );
@@ -131,11 +156,19 @@ export default function CommentSection() {
 
   // Handler to send a reply
   const handleSendReply = (commentId: string) => {
-    // Add your logic to send the reply here
-    console.log("Sending reply:", replyText, "for comment:", commentId);
     setReplyText(""); // Clear the reply input
     setOpenReplyId(null); // Close the reply box
     replyCommentMutation();
+  };
+
+  // Handler to toggle replies visibility
+  const handleToggleReplies = async (commentId: string) => {
+    setReplyCommentId(commentId);
+    setShowReplies(!showReplies);
+    setExpandedReplies((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId], // Toggle visibility
+    }));
   };
 
   if (isCommentsLoading) {
@@ -153,7 +186,7 @@ export default function CommentSection() {
       {/* Comments Header */}
       <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
         <Typography variant="h6" sx={{ mr: 2 }}>
-          {comments?.comments?.length || 0} Comments
+          {comments?.comments?.length || 0} Comments {replyCommentId}
         </Typography>
         <Button
           startIcon={<Sort />}
@@ -220,7 +253,7 @@ export default function CommentSection() {
           } = comment;
           return (
             <Box key={commentId} sx={{ display: "flex", gap: 2 }}>
-              <Link to={`/`}>
+              <Link to={`/channel/${userId}`}>
                 <Avatar src={avatarUrl} />
               </Link>
               <Box sx={{ flex: 1 }}>
@@ -282,7 +315,7 @@ export default function CommentSection() {
                   </Box>
                 )}
 
-                {comment.replies > 0 && (
+                {comment._count.replies > 0 && (
                   <Button
                     startIcon={<Sort sx={{ transform: "rotate(90deg)" }} />}
                     sx={{
@@ -291,9 +324,31 @@ export default function CommentSection() {
                       mt: 1,
                       "&:hover": { backgroundColor: "transparent" },
                     }}
+                    // onClick={() => handleToggleReplies(commentId)}
+                    onClick={async () => {
+                      handleToggleReplies(commentId);
+                      setCurrentReplies(await fetchReplies(commentId));
+                    }}
                   >
-                    {comment.replies} replies
+                    {comment._count.replies}{" "}
+                    {comment._count.replies === 1 ? "reply" : "replies"}
                   </Button>
+                )}
+                {/* Reply Button (Conditional Rendering) */}
+                {replyCommentId == commentId && showReplies && (
+                  <div className="w-72 p-3 ">
+                    {console.log("mafia", currentReplies?.replies)}
+                    {currentReplies?.replies?.map((reply) => {
+                      console.log("pesh kar", reply);
+                      //TODO Right here
+                      return (
+                        // <div key={reply.id}>
+                        //   <p>{reply.replyText}</p>
+                        // </div>
+                        <CommentCard key={reply.id} reply={reply} />
+                      );
+                    })}
+                  </div>
                 )}
               </Box>
               <Menu
