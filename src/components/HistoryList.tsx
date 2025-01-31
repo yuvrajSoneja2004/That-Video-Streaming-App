@@ -4,6 +4,7 @@ import { useUserStore } from "@/states/user";
 import { useEffect } from "react";
 import HistoryVideoCard from "./HistoryVideoCard";
 import HistoryVideoCardSkeleton from "@/skeletons/HistoryVideoCardSkeleton";
+import NoVideos from "./NoVideos";
 
 export function HistoryList() {
   const { userInfo } = useUserStore();
@@ -29,6 +30,9 @@ export function HistoryList() {
 
   if (isError) {
     return <div>Error: {error.message}</div>;
+  }
+  if (data?.watchHistory.length === 0) {
+    return <NoVideos />;
   }
 
   return (

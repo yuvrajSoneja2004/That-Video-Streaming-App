@@ -9,6 +9,7 @@ import {
   Heart,
   Settings,
   Radio,
+  TvMinimalPlay,
 } from "lucide-react";
 import SiteLogo from "../assets/site-logo.png";
 import { Link } from "react-router-dom";
@@ -56,7 +57,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 variant="ghost"
                 className="w-full justify-start gap-2 text-black dark:text-white "
               >
-                <Library className="h-5 w-5" /> Library
+                <TvMinimalPlay className="h-5 w-5" /> Shorts
               </Button>
             </div>
 
@@ -90,7 +91,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </Link>
             </div>
 
-            <div className="space-y-2 dark:bg-primaryDark">
+            {/* <div className="space-y-2 dark:bg-primaryDark">
               <h3 className="text-sm font-semibold text-gray-400 px-3 dark:bg-primaryDark">
                 Settings
               </h3>
@@ -100,7 +101,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               >
                 <Settings className="h-5 w-5" /> Settings
               </Button>
-            </div>
+            </div> */}
           </nav>
         </div>
       </div>

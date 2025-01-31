@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import HistoryVideoCard from "@/components/HistoryVideoCard";
 import { fetchLikedVideos } from "@/helpers/fetchLikedVideos";
 import HistoryVideoCardSkeleton from "@/skeletons/HistoryVideoCardSkeleton";
+import NoVideos from "@/components/NoVideos";
 
 function LikedVideosPage() {
   const { userInfo } = useUserStore();
@@ -29,6 +30,10 @@ function LikedVideosPage() {
 
   if (isError) {
     return <div>Error: {error.message}</div>;
+  }
+
+  if (data?.likedVideos.length === 0) {
+    return <NoVideos />;
   }
 
   return (

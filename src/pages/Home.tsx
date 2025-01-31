@@ -6,6 +6,8 @@ import { fetchVideos } from "../helpers/fetchVideos";
 import { useUserStore } from "@/states/user";
 import { useGlobalState } from "@/states/global";
 import SkeletonCard from "@/skeletons/SkeletonVideoCard";
+import NoVideos from "@/components/NoVideos";
+import { useSingleVideoState } from "@/states/video";
 
 // Define interfaces
 interface Video {
@@ -25,10 +27,12 @@ function Home() {
   const { ref, inView } = useInView();
   const { userInfo } = useUserStore();
   const { loadingBarState, setLoadingBarState } = useGlobalState();
+  const { currentVideoCategory } = useSingleVideoState();
 
   const fetchVideoPage = async ({ pageParam = 0 }): Promise<PageData> => {
     if (userInfo?.userId) {
       const response = await fetchVideos(
+        currentVideoCategory,
         pageParam,
         VIDEOS_PER_PAGE,
         userInfo.userId
@@ -55,10 +59,14 @@ function Home() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery(["videos", userInfo?.userId], fetchVideoPage, {
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    refetchOnWindowFocus: false,
-  });
+  } = useInfiniteQuery(
+    ["videos", userInfo?.userId, currentVideoCategory],
+    fetchVideoPage,
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   // Fetch next page when the last element is in view
   React.useEffect(() => {
@@ -77,6 +85,9 @@ function Home() {
     );
   }
 
+  if (data?.pages.length === 0) {
+    return <NoVideos />;
+  }
   return (
     <div className="p-7 bg-primaryLight dark:bg-primaryDark">
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 place-items-center">

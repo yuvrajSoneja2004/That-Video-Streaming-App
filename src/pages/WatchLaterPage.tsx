@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { fetchWatchLater } from "@/helpers/fetchWatchLater";
 import HistoryVideoCard from "@/components/HistoryVideoCard";
 import HistoryVideoCardSkeleton from "@/skeletons/HistoryVideoCardSkeleton";
+import NoVideos from "@/components/NoVideos";
 
 function WatchLaterPage() {
   const { userInfo } = useUserStore();
@@ -29,6 +30,9 @@ function WatchLaterPage() {
 
   if (isError) {
     return <div>Error: {error.message}</div>;
+  }
+  if (data?.length === 0) {
+    return <NoVideos />;
   }
 
   return (

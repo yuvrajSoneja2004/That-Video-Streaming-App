@@ -18,6 +18,7 @@ interface VideoResponse {
 }
 
 export const fetchVideos = async (
+  category: "all" | "gaming" | "music" | "recently-uploaded" | "watched",
   page: number = 0,
   limit: number = 8,
   userId: number = 0
@@ -27,6 +28,7 @@ export const fetchVideos = async (
       "/video/getVideos",
       {
         params: {
+          category,
           page,
           limit,
           userId,

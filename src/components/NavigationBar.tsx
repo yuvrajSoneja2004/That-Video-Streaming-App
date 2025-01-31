@@ -16,42 +16,46 @@ import { useUserStore } from "@/states/user"
 import SearchBar from "./SearchBar"
 import { Link } from "react-router-dom"
 import { ModeToggle } from "./ThemeToggle"
+import { axiosInstance } from "@/utils/axiosInstance";
+import { getVideosByCategory } from "@/helpers/video/getVideosByCategory";
+import { useSingleVideoState } from "@/states/video";
 // import { ModeToggle } from "./ThemeToggle"
 
 interface NavbarProps {
-  onMenuClick: () => void
+  onMenuClick: () => void;
 }
 
 export function Navbar({ onMenuClick }: NavbarProps) {
-  const [isDarkMode, setIsDarkMode] = React.useState(false)
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [showChannelsNav, setShowChannelsNav] = React.useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = React.useState<string>("");
   const [user, loading, error] = useAuthState(auth);
   const {
     userInfo: { avatarUrl },
   } = useUserStore();
+  const { setCurrentVideoCategory, currentVideoCategory } =
+    useSingleVideoState();
 
-  const categories = [
-    "All", "Gaming", "Music", "Recently Uploaded", "Watched", "Subscribers"
-  ]
+  const categories = ["All", "Gaming", "Music", "Recently Uploaded", "Watched"];
 
-  const creators = Array.from({length: 15}, (_, i) => ({
+  const creators = Array.from({ length: 15 }, (_, i) => ({
     name: `Creator ${i + 1}`,
     image: `/placeholder.svg?height=32&width=32`,
-    isLive: i % 3 === 0
-  }))
+    isLive: i % 3 === 0,
+  }));
 
   return (
     <header className="sticky top-0 z-10  dark:bg-primaryDark  backdrop-blur supports-[backdrop-filter]:bg-black/60 border-b border-gray-800">
       <div className="flex items-center bg-primaryLight dark:bg-primaryDark justify-between gap-4 p-4">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="lg:hidden"
           onClick={onMenuClick}
         >
           <Menu className="h-5 w-5" />
         </Button>
-        
+
         <SearchBar />
 
         <div className="flex items-center gap-2">
@@ -64,26 +68,33 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full ">
+              <Button
+                variant="ghost"
+                className="relative h-8 w-8 rounded-full "
+              >
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={avatarUrl} alt="@username" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-black/95 text-white border-gray-900" align="end" forceMount>
-            <Link to={`/channel/${user?.uid}`}>
-            <DropdownMenuItem>
-               <User className="mr-2 h-4 w-4" />
-               <span>My Account</span>
-              </DropdownMenuItem>
-            </Link>
+            <DropdownMenuContent
+              className="w-56 bg-black/95 text-white border-gray-900"
+              align="end"
+              forceMount
+            >
+              <Link to={`/channel/${user?.uid}`}>
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>My Account</span>
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem onSelect={() => setIsDarkMode(!isDarkMode)}>
                 <Moon className="mr-2 h-4 w-4" />
                 <span>Dark Mode</span>
-                <Switch 
-                  checked={isDarkMode} 
-                  onCheckedChange={setIsDarkMode} 
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={setIsDarkMode}
                   className="ml-auto"
                 />
               </DropdownMenuItem>
@@ -95,22 +106,30 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </DropdownMenu>
         </div>
       </div>
-
-      <ScrollArea className="w-full whitespace-nowrap border-t border-gray-100 dark:border-gray-800 dark:bg-primaryDark bg-primaryLight">
+      {/* //TODO : Navigation Bar thing */}
+      {/* <ScrollArea className="w-full whitespace-nowrap border-t border-gray-100 dark:border-gray-800 dark:bg-primaryDark bg-primaryLight">
         <div className="flex p-4 gap-2">
           {categories.map((category) => (
             <Button
               key={category}
               variant="secondary"
               className="rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-700  text-primaryDark dark:text-white"
+              style={{
+                background:
+                  category.toLowerCase() === currentVideoCategory.toLowerCase()
+                    ? "#000"
+                    : "",
+              }}
+              onClick={() => {
+                setCurrentVideoCategory(category.toLowerCase());
+              }}
             >
               {category}
             </Button>
           ))}
         </div>
         <ScrollBar orientation="horizontal" className="invisible" />
-      </ScrollArea>
-
+      </ScrollArea> */}
       {showChannelsNav && (
         <ScrollArea className="w-full whitespace-nowrap pb-4">
           <div className="flex px-4 gap-4">
@@ -135,5 +154,5 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         </ScrollArea>
       )}
     </header>
-  )
+  );
 }

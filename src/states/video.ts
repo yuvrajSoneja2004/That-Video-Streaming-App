@@ -2,6 +2,9 @@ import { create } from "zustand";
 
 export const useSingleVideoState = create((set) => ({
   watchedDurations: {},
+  currentVideoCategory: "all",
+  setCurrentVideoCategory: (category: string) =>
+    set({ currentVideoCategory: category }),
   setWatchedDuration: (videoId: string, watchState: any) =>
     set((state) => ({
       watchedDurations: { ...state.watchedDurations, [videoId]: watchState },
