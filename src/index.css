@@ -99,4 +99,34 @@ html {
     @apply bg-background text-foreground;
     }
 }
-  
+/* Enable swiping only on video container */
+.video-container {
+  touch-action: pan-y;
+  width: 100%;
+}
+
+/* Disable pointer events on non-swipe elements */
+.no-swipe {
+  pointer-events: none;
+}
+
+/* Re-enable pointer events for interactive elements inside no-swipe containers */
+.no-swipe button,
+.no-swipe a,
+.no-swipe input {
+  pointer-events: auto;
+}
+
+/* Ensure Swiper takes full height */
+.swiper {
+  height: 100vh;
+  width: 100%;
+}
+
+/* Ensure Swiper slides take full height */
+.swiper-slide {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

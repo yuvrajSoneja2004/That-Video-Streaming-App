@@ -1,6 +1,15 @@
 import { create } from "zustand";
 
-export const useGlobalState = create((set) => ({
+interface GlobalState {
+  showSidebar: boolean;
+  isVideoUploaded: boolean;
+  loadingBarState: number;
+  setShowSidebar: (boolState: boolean) => void;
+  setIsVideoUploaded: (boolState: boolean) => void;
+  setLoadingBarState: (progress: number) => void;
+}
+
+export const useGlobalState = create<GlobalState>((set) => ({
   showSidebar: true,
   isVideoUploaded: false,
   loadingBarState: 30,

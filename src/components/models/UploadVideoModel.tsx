@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -19,16 +19,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Progress } from "@/components/ui/progress"
-import { useMutation } from "react-query"
-import { UploadIcon as FileUpload, Stars, Upload } from 'lucide-react'
-import { videoCategories } from "../../constants/categories"
-import { generateVideoThumbnails } from "../../helpers/generateVideoThumbnails"
-import { SERVER_BASE_URL } from "../../utils/axiosInstance"
-import { uploadVideo } from "../../helpers/uploadVideo"
-import { useGlobalState } from "@/states/global"
-import { useToast } from "@/hooks/use-toast"
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { useMutation } from "react-query";
+import { UploadIcon as FileUpload, Stars, Upload } from "lucide-react";
+import { videoCategories } from "../../constants/categories";
+import { generateVideoThumbnails } from "../../helpers/generateVideoThumbnails";
+import { SERVER_BASE_URL } from "../../utils/axiosInstance";
+import { uploadVideo } from "../../helpers/uploadVideo";
+import { useGlobalState } from "@/states/global";
+import { useToast } from "@/hooks/use-toast";
+import ShortEditCanvas from "@/components/ShortEditCanvas";
+import { useNavigate } from "react-router-dom";
 
 function VideoDetails({
   prevUrl,
@@ -37,99 +40,101 @@ function VideoDetails({
   avatarUrl,
   channelId,
 }: {
-  prevUrl: string
-  selectedVideo: File | null
-  name: string
-  avatarUrl: string
-  channelId: string
+  prevUrl: string;
+  selectedVideo: File | null;
+  name: string;
+  avatarUrl: string;
+  channelId: string;
 }) {
-  const [title, setTitle] = React.useState("")
-  const [description, setDescription] = React.useState("")
-  const [thumbnail, setThumbnail] = React.useState("")
-  const [selectedCategory, setSelectedCategory] = React.useState(videoCategories[0])
-  const [uploadPercentage, setUploadPercentage] = React.useState(0)
-  const [currentUploadStage, setCurrentUploadStage] = React.useState("uploading")
-  const { setIsVideoUploaded,isVideoUploaded } = useGlobalState()
-  const {toast} = useToast()
+  const [title, setTitle] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [thumbnail, setThumbnail] = React.useState("");
+  const [selectedCategory, setSelectedCategory] = React.useState(
+    videoCategories[0]
+  );
+  const [uploadPercentage, setUploadPercentage] = React.useState(0);
+  const [currentUploadStage, setCurrentUploadStage] =
+    React.useState("uploading");
+  const { setIsVideoUploaded, isVideoUploaded } = useGlobalState();
+  const { toast } = useToast();
 
-  const thumbnailRef = React.useRef<HTMLInputElement>(null)
+  const thumbnailRef = React.useRef<HTMLInputElement>(null);
 
   const { data, isLoading, mutate } = useMutation((formData: FormData) =>
     generateVideoThumbnails(formData)
-  )
+  );
 
   const uploadMutation = useMutation({
     mutationFn: async (uploadData: {
-      title: string
-      description: string
-      category: string
-      thumbnail: string
-      video: File
+      title: string;
+      description: string;
+      category: string;
+      thumbnail: string;
+      video: File;
     }) => {
-      const formData = new FormData()
-      formData.append("channelId", channelId)
-      formData.append("title", uploadData.title)
-      formData.append("description", uploadData.description)
-      formData.append("category", uploadData.category)
-      formData.append("thumbnail", uploadData.thumbnail)
-      formData.append("video", uploadData.video)
+      const formData = new FormData();
+      formData.append("channelId", channelId);
+      formData.append("title", uploadData.title);
+      formData.append("description", uploadData.description);
+      formData.append("category", uploadData.category);
+      formData.append("thumbnail", uploadData.thumbnail);
+      formData.append("video", uploadData.video);
 
       return uploadVideo(formData, (progress) => {
-        setUploadPercentage(progress.progress)
-        if(progress.stage === "complete"){
+        setUploadPercentage(progress.progress);
+        if (progress.stage === "complete") {
           setIsVideoUploaded(true);
           toast({
             title: "Uploaded Video Successfully",
             description: "Other people can watch the video now.",
-          })
-
+          });
         }
-        setCurrentUploadStage(progress.stage)
-      })
+        setCurrentUploadStage(progress.stage);
+      });
     },
     onSuccess: (data) => {
-      console.log("Video uploaded successfully:", data)
+      console.log("Video uploaded successfully:", data);
     },
     onError: (error) => {
-      console.error("Upload failed:", error)
+      console.error("Upload failed:", error);
     },
-  })
+  });
 
   const generateThumbnails = () => {
     if (selectedVideo) {
-      const formData = new FormData()
-      formData.append("video", selectedVideo)
-      mutate(formData)
+      const formData = new FormData();
+      formData.append("video", selectedVideo);
+      mutate(formData);
     }
-  }
+  };
 
   const handleThumbnailClick = (thumbUrl: string) => {
-    setThumbnail(`${SERVER_BASE_URL}/video${thumbUrl}`)
-  }
+    setThumbnail(`${SERVER_BASE_URL}/video${thumbUrl}`);
+  };
 
   const handleThumbnailSelection = () => {
     if (thumbnailRef.current) {
-      thumbnailRef.current.click()
+      thumbnailRef.current.click();
     }
-  }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      const fileUrl = URL.createObjectURL(file)
-      setThumbnail(fileUrl)
+      const fileUrl = URL.createObjectURL(file);
+      setThumbnail(fileUrl);
     }
-  }
+  };
 
   const handleUpload = () => {
     if (!selectedVideo) {
-      console.error("No video selected")
-      return
+      console.error("No video selected");
+      return;
     }
 
     if (!title.trim()) {
-      console.error("Title is required")
-      return
+      console.error("Title is required");
+      return;
     }
 
     uploadMutation.mutate({
@@ -138,8 +143,8 @@ function VideoDetails({
       category: selectedCategory,
       thumbnail,
       video: selectedVideo,
-    })
-  }
+    });
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
@@ -235,7 +240,11 @@ function VideoDetails({
       <div className="bg-muted p-4 rounded-lg">
         <h3 className="font-semibold mb-2">Video Preview</h3>
         {thumbnail ? (
-          <img src={thumbnail} alt="Video thumbnail" className="w-full h-auto rounded-md" />
+          <img
+            src={thumbnail || "/placeholder.svg"}
+            alt="Video thumbnail"
+            className="w-full h-auto rounded-md"
+          />
         ) : (
           <div className="w-full h-48 bg-secondary flex items-center justify-center rounded-md">
             <p className="text-muted-foreground">No thumbnail selected</p>
@@ -247,32 +256,57 @@ function VideoDetails({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default function UploadVideoModal({ avatarUrl, name, channelId }: { avatarUrl: string; name: string; channelId: string }) {
-  const [open, setOpen] = React.useState(false)
-  const [isVideoSelected, setIsVideoSelected] = React.useState(false)
-  const [previewURL, setPreviewURL] = React.useState("")
-  const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null)
-  const selectVideoRef = React.useRef<HTMLInputElement>(null)
-  const { setIsVideoUploaded,isVideoUploaded } = useGlobalState()
-
+export default function UploadVideoModal({
+  avatarUrl,
+  name,
+  channelId,
+}: {
+  avatarUrl: string;
+  name: string;
+  channelId: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [isVideoSelected, setIsVideoSelected] = React.useState(false);
+  const [previewURL, setPreviewURL] = React.useState("");
+  const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null);
+  const selectVideoRef = React.useRef<HTMLInputElement>(null);
+  const { setIsVideoUploaded, isVideoUploaded } = useGlobalState();
+  const [selectedShortVideo, setSelectedShortVideo] =
+    React.useState<File | null>(null);
+  const selectShortVideoRef = React.useRef<HTMLInputElement>(null);
+  const navigate = useNavigate()
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null
+    const file = event.target.files ? event.target.files[0] : null;
     if (file) {
-      setSelectedVideo(file)
-      setIsVideoSelected(true)
-      const prevUrl = URL.createObjectURL(file)
-      setPreviewURL(prevUrl)
+      setSelectedVideo(file);
+      setIsVideoSelected(true);
+      const prevUrl = URL.createObjectURL(file);
+      setPreviewURL(prevUrl);
     }
-  }
+  };
+
+  const handleShortFileSelect = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    if (file) {
+      // You might want to add validation here for vertical orientation and duration
+      setSelectedShortVideo(file);
+    }
+  };
 
   return (
     <Dialog open={isVideoUploaded} onOpenChange={setIsVideoUploaded}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setIsVideoUploaded(true)} className="text-black">
+        <Button
+          variant="outline"
+          onClick={() => setIsVideoUploaded(true)}
+          className="text-black"
+        >
           <Upload className="mr-2 h-4 w-4 " color="#000" />
           Upload
         </Button>
@@ -281,35 +315,77 @@ export default function UploadVideoModal({ avatarUrl, name, channelId }: { avata
         <DialogHeader>
           <DialogTitle>Upload Video</DialogTitle>
           <DialogDescription>
-            Share your video with the world. Add details and customize your video settings.
+            Share your video with the world. Add details and customize your
+            video settings.
           </DialogDescription>
         </DialogHeader>
-        {!isVideoSelected ? (
-          <div className="flex flex-col items-center justify-center p-12">
-            <FileUpload className="w-12 h-12 mb-4 text-muted-foreground" />
-            <h2 className="text-xl font-semibold mb-2">Drag and drop video files to upload</h2>
-            <p className="text-sm text-muted-foreground mb-4">Your videos will be private until you publish them.</p>
-            <input
-              type="file"
-              ref={selectVideoRef}
-              accept="video/*"
-              onChange={handleFileSelect}
-              style={{ display: "none" }}
-            />
-            <Button onClick={() => selectVideoRef.current?.click()}>
-              Select Files
-            </Button>
-          </div>
-        ) : (
-          <VideoDetails
-            prevUrl={previewURL}
-            selectedVideo={selectedVideo}
-            name={name}
-            avatarUrl={avatarUrl}
-            channelId={channelId}
-          />
-        )}
+
+        <Tabs defaultValue="normal" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="normal">Normal Video</TabsTrigger>
+            <TabsTrigger value="short">Short Video</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="normal">
+            {!isVideoSelected ? (
+              <div className="flex flex-col items-center justify-center p-12">
+                <FileUpload className="w-12 h-12 mb-4 text-muted-foreground" />
+                <h2 className="text-xl font-semibold mb-2">
+                  Drag and drop video files to upload
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your videos will be private until you publish them.
+                </p>
+                <input
+                  type="file"
+                  ref={selectVideoRef}
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  style={{ display: "none" }}
+                />
+                <Button onClick={() => navigate("/editor")}>
+                  Select Files
+                </Button>
+                {/* <Button onClick={() => selectVideoRef.current?.click()}>
+                  Select Files
+                </Button> */}
+              </div>
+            ) : (
+              <VideoDetails
+                prevUrl={previewURL}
+                selectedVideo={selectedVideo}
+                name={name}
+                avatarUrl={avatarUrl}
+                channelId={channelId}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="short">
+            {!selectedShortVideo ? (
+              <div className="flex flex-col items-center justify-center p-12">
+                <FileUpload className="w-12 h-12 mb-4 text-muted-foreground" />
+                <h2 className="text-xl font-semibold mb-2">Create a Short</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Upload a vertical video under 60 seconds
+                </p>
+                <input
+                  type="file"
+                  ref={selectShortVideoRef}
+                  accept="video/*"
+                  onChange={handleShortFileSelect}
+                  style={{ display: "none" }}
+                />
+                <Button onClick={() => selectShortVideoRef.current?.click()}>
+                  Select Short Video
+                </Button>
+              </div>
+            ) : (
+              <ShortEditCanvas video={selectedShortVideo} />
+            )}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

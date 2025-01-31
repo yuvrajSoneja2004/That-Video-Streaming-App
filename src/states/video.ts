@@ -1,6 +1,14 @@
 import { create } from "zustand";
 
-export const useSingleVideoState = create((set) => ({
+interface VideoState {
+  watchedDurations: any;
+  currentVideoCategory: string;
+  setCurrentVideoCategory: (category: string) => void;
+  setWatchedDuration: (videoId: string, watchState: any) => void;
+  logWatchDurations: () => void;
+  getSingleVideoDuration: (videoId: string) => number;
+}
+export const useSingleVideoState = create<VideoState>((set) => ({
   watchedDurations: {},
   currentVideoCategory: "all",
   setCurrentVideoCategory: (category: string) =>
@@ -16,7 +24,7 @@ export const useSingleVideoState = create((set) => ({
     // );
   },
   getSingleVideoDuration: (videoId: string) => {
-    const videoState = useSingleVideoState.getState();
+    const videoState: VideoState = useSingleVideoState.getState();
     return videoState.watchedDurations[videoId] || 0;
   },
 }));

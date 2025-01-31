@@ -16,6 +16,8 @@ import TestHome from "./testingComps/TestHomePage";
 import { UserHistoryPage } from "./pages/UserHistoryPage";
 import WatchLaterPage from "./pages/WatchLaterPage";
 import LikedVideos from "./pages/LikedVideos";
+import Shorts from "./pages/Shorts";
+import ShortEditCanvas from "./components/ShortEditCanvas";
 // Import channel page components
 
 function Routing() {
@@ -44,6 +46,8 @@ function Routing() {
                 <Route path="/history" element={<UserHistoryPage />} />
                 <Route path="/watchLater" element={<WatchLaterPage />} />
                 <Route path="/likedVideos" element={<LikedVideos />} />
+                <Route path="/shorts/:shortId" element={<Shorts />} />
+                <Route path="/editor" element={<ShortEditCanvas />} />
               </Routes>
             </div>
           </TestHome>

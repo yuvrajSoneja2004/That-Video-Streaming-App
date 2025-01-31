@@ -1,6 +1,10 @@
 import { create } from "zustand";
 
-export const useChannelState = create((set) => ({
+interface ChannelState {
+  isChannelInfoUpdated: boolean;
+  setIsChannelInfoUpdated: (boolState: boolean) => void;
+}
+export const useChannelState = create<ChannelState>((set) => ({
   isChannelInfoUpdated: false,
   setIsChannelInfoUpdated: (boolState: boolean) =>
     set(() => ({ isChannelInfoUpdated: boolState })),
