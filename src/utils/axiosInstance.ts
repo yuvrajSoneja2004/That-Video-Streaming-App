@@ -1,10 +1,10 @@
 import axios from "axios";
 // export const SERVER_BASE_URL = "https://llm.jagan.shop"
-const environment = "development";
+const environment = "production";
 export const SERVER_BASE_URL =
   environment === "production"
-    ? "https://llm.jagan.shop/api/v1"
-    : "http://localhost:3000/api/v1";
+    ? "https://jagstream.yuvrajsoneja.in/api/v1"
+    : "http://localhost:3005/api/v1";
 export const axiosInstance = axios.create({
   baseURL: SERVER_BASE_URL,
 });

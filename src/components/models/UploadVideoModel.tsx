@@ -32,6 +32,7 @@ import { useGlobalState } from "@/states/global";
 import { useToast } from "@/hooks/use-toast";
 import ShortEditCanvas from "@/components/ShortEditCanvas";
 import { useNavigate } from "react-router-dom";
+import { useStoryEditorState } from "@/states/storyEditor";
 
 function VideoDetails({
   prevUrl,
@@ -230,7 +231,10 @@ function VideoDetails({
           {uploadMutation.isLoading ? (
             <>
               Uploading... {Math.round(uploadPercentage)}%
-              <Progress value={uploadPercentage} className="w-full mt-2" />
+              <Progress
+                value={Math.round(uploadPercentage)}
+                className="w-full mt-2"
+              />
             </>
           ) : (
             "Upload Video"
@@ -277,7 +281,8 @@ export default function UploadVideoModal({
   const [selectedShortVideo, setSelectedShortVideo] =
     React.useState<File | null>(null);
   const selectShortVideoRef = React.useRef<HTMLInputElement>(null);
-  const navigate = useNavigate()
+  const { setSelectedImage } = useStoryEditorState();
+  const navigate = useNavigate();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
@@ -295,7 +300,10 @@ export default function UploadVideoModal({
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
       // You might want to add validation here for vertical orientation and duration
-      setSelectedShortVideo(file);
+      // setSelectedShortVideo(file);
+      const prevUrl = URL.createObjectURL(file);
+      setSelectedImage(prevUrl);
+      navigate("/editor");
     }
   };
 
@@ -305,7 +313,7 @@ export default function UploadVideoModal({
         <Button
           variant="outline"
           onClick={() => setIsVideoUploaded(true)}
-          className="text-black"
+          className="text-black bg-white rounded-3xl"
         >
           <Upload className="mr-2 h-4 w-4 " color="#000" />
           Upload
@@ -339,16 +347,17 @@ export default function UploadVideoModal({
                 <input
                   type="file"
                   ref={selectVideoRef}
-                  accept="image/*"
+                  accept="video/*"
                   onChange={handleFileSelect}
                   style={{ display: "none" }}
                 />
-                <Button onClick={() => navigate("/editor")}>
+                {/* <Button> */}
+                {/* <Button onClick={() => navigate("/editor")}> */}
+                {/* Select Files */}
+                {/* </Button> */}
+                <Button onClick={() => selectVideoRef.current?.click()}>
                   Select Files
-                </Button>
-                {/* <Button onClick={() => selectVideoRef.current?.click()}>
-                  Select Files
-                </Button> */}
+                </Button>{" "}
               </div>
             ) : (
               <VideoDetails
@@ -372,7 +381,7 @@ export default function UploadVideoModal({
                 <input
                   type="file"
                   ref={selectShortVideoRef}
-                  accept="video/*"
+                  accept="*"
                   onChange={handleShortFileSelect}
                   style={{ display: "none" }}
                 />

@@ -10,6 +10,7 @@ import {
   Settings,
   Radio,
   TvMinimalPlay,
+  CircleFadingPlus,
 } from "lucide-react";
 import SiteLogo from "../assets/site-logo.png";
 import { Link } from "react-router-dom";
@@ -53,12 +54,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               >
                 <Radio className="h-5 w-5" /> Live
               </Button>
-              <Link to={`/shorts/123`}>
+              <Link to={`/stories`}>
                 <Button
                   variant="ghost"
                   className="w-full justify-start gap-2 text-black dark:text-white "
                 >
-                  <TvMinimalPlay className="h-5 w-5" /> Shorts
+                  <CircleFadingPlus className="h-5 w-5" /> Stories
                 </Button>
               </Link>
             </div>

@@ -1,10 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/* Fonts  */
+/* 1 */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Oswald:wght@200..700&display=swap');
+/* 2 */
+/* @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Oswald:wght@200..700&display=swap'); */
 * {
-    /* border: 2px solid red; */
+    /* outline: 2px solid red; */
+    /* 1 */
+    /* font-family: "JetBrains Mono", serif;
+    /* 2 */
+    /* font-family: "Bebas Neue", serif; */
+  /* font-family: cursive; */
+
 }
+
+
 
 /* Hide scrollbar but allow scrolling */
 html {
